@@ -3,49 +3,54 @@ using Coflnet.Sky.Base.Models;
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Coflnet.Sky.Updater;
+using System.Threading;
+using Microsoft.Extensions.Hosting;
+using Coflnet.Sky.Sniper.Services;
+using Hypixel.NET;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
+using WebSocketSharp;
+using System.Net.Http;
+using StackExchange.Redis;
 
 namespace Coflnet.Sky.Base.Services
 {
-    public class BaseService
+    public class UpdaterService : BackgroundService
     {
-        private BaseDbContext db;
+        private SniperService sniper;
+        private static HttpClient httpClient = new HttpClient();
+        private IConnectionMultiplexer redis;
 
-        public BaseService(BaseDbContext db)
+        public UpdaterService(SniperService sniper, IConnectionMultiplexer redis)
         {
-            this.db = db;
+            this.sniper = sniper;
+            this.redis = redis;
         }
 
-        public async Task<Flip> AddFlip(Flip flip)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (flip.Timestamp == default)
-            {
-                flip.Timestamp = DateTime.Now;
-            }
-            var flipAlreadyExists = await db.Flips.Where(f => f.AuctionId == flip.AuctionId && f.FinderType == flip.FinderType).AnyAsync();
-            if (flipAlreadyExists)
-            {
-                return flip;
-            }
-            db.Flips.Add(flip);
-            await db.SaveChangesAsync();
-            return flip;
-        }
 
-        public async Task<FlipEvent> AddEvent(FlipEvent flipEvent)
-        {
-            if (flipEvent.Timestamp == default)
+            Console.WriteLine("doing full update");
+            await new FullUpdater(sniper).Update(true);
+            Console.WriteLine("=================\ndone full update");
+            
+            var prod = redis.GetSubscriber();
+            sniper.FoundSnipe += (lp) =>
             {
-                flipEvent.Timestamp = DateTime.Now;
-            }
-            var flipEventAlreadyExists = await db.FlipEvents.Where(f => f.AuctionId == flipEvent.AuctionId && f.Type == flipEvent.Type && f.PlayerId == flipEvent.PlayerId)
-                    .AnyAsync();
-            if (flipEventAlreadyExists)
-            {
-                return flipEvent;
-            }
-            db.FlipEvents.Add(flipEvent);
-            await db.SaveChangesAsync();
-            return flipEvent;
+                if(lp.TargetPrice < 4_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.1 || lp.Finder != LowPricedAuction.FinderType.SNIPER)
+                    return;
+                prod.Publish("snipes", MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
+                Console.WriteLine($"found snipe :O {lp.Auction.Uuid} {lp.Auction.ItemName}" + lp.Finder);
+                Task.Run(async ()=>{
+                    await Task.Delay(500);
+                    await httpClient.PostAsync($"https://sky.coflnet.com/api/flip/track/found/{lp.Auction.Uuid}?finder=test&price={lp.TargetPrice}", null);
+                });
+            };
+
+            var updater = new SnipeUpdater(sniper);
+            var stopping = stoppingToken;
+
+            updater.DoUpdates(0, stoppingToken);
         }
     }
 }

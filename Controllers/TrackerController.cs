@@ -19,30 +19,16 @@ namespace Coflnet.Sky.Base.Controllers
     public class BaseController : ControllerBase
     {
         private readonly BaseDbContext db;
-        private readonly BaseService service;
+        private readonly UpdaterService service;
 
         /// <summary>
         /// Creates a new instance of <see cref="BaseController"/>
         /// </summary>
         /// <param name="context"></param>
-        public BaseController(BaseDbContext context, BaseService service)
+        public BaseController(BaseDbContext context, UpdaterService service)
         {
             db = context;
             this.service = service;
-        }
-
-        /// <summary>
-        /// Tracks a flip
-        /// </summary>
-        /// <param name="flip"></param>
-        /// <param name="AuctionId"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("flip/{AuctionId}")]
-        public async Task<Flip> TrackFlip([FromBody] Flip flip, string AuctionId)
-        {
-            await service.AddFlip(flip);
-            return flip;
         }
     }
 }

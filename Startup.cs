@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using Coflnet.Sky.Base.Models;
 using Coflnet.Sky.Base.Services;
+using Coflnet.Sky.Sniper.Services;
 using hypixel;
 using Jaeger.Samplers;
 using Jaeger.Senders;
@@ -18,6 +19,7 @@ using Microsoft.OpenApi.Models;
 using OpenTracing;
 using OpenTracing.Util;
 using Prometheus;
+using StackExchange.Redis;
 
 namespace Coflnet.Sky.Base
 {
@@ -43,22 +45,11 @@ namespace Coflnet.Sky.Base
                 c.IncludeXmlComments(xmlPath);
             });
 
-            // Replace with your server version and type.
-            // Use 'MariaDbServerVersion' for MariaDB.
-            // Alternatively, use 'ServerVersion.AutoDetect(connectionString)'.
-            // For common usages, see pull request #1233.
-            var serverVersion = new MariaDbServerVersion(new Version(Configuration["MARIADB_VERSION"]));
-
-            // Replace 'YourDbContext' with the name of your own DbContext derived class.
-            services.AddDbContext<BaseDbContext>(
-                dbContextOptions => dbContextOptions
-                    .UseMySql(Configuration["DB_CONNECTION"], serverVersion)
-                    .EnableSensitiveDataLogging() // <-- These two calls are optional but help
-                    .EnableDetailedErrors()       // <-- with debugging (remove for production).
-            );
-            services.AddHostedService<BaseBackgroundService>();
+            services.AddHostedService<UpdaterService>();
             services.AddJaeger();
-            services.AddTransient<BaseService>();
+            services.AddTransient<SniperService>();
+            var redisOptions = ConfigurationOptions.Parse(Configuration["FLIP_REDIS_OPTIONS"]);
+            services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMultiplexer.Connect(redisOptions));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

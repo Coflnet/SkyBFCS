@@ -2,18 +2,36 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <NoWarn>1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <GenerateProgramFile>false</GenerateProgramFile>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="../dev/hypixel.csproj" />
+    <ProjectReference Include="../SkyFilter/SkyFilter.csproj" />
+    <ProjectReference Include="../SkyBackendForFrontend/SkyBackendForFrontend.csproj" />
+    <ProjectReference Include="../SkyModCommands/SkyModCommands.csproj" />
+    <!--ProjectReference Include="../websocket-sharp/websocket-sharp/websocket-sharp.csproj" /-->
+    <ProjectReference Include="../SkySniper/SkySniper.csproj" />
+    <ProjectReference Include="../SkyUpdater/SkyUpdater.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <DefaultItemExcludes>$(DefaultItemExcludes);Client\**\*</DefaultItemExcludes>
   </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <Compile Remove="**\*.Tests.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' != 'Release'">
+    <PackageReference Include="nunit" Version="3.13.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+  </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="WebSocketSharp.NetCore" Version="1.0.0" />
+    <PackageReference Include="Coflnet.Sky.Settings.Client" Version="0.1.0" />
     <PackageReference Include="Confluent.Kafka" Version="1.7.0" />
     <PackageReference Include="Jaeger.Core" Version="1.0.3" />
     <PackageReference Include="Jaeger.Senders.Thrift" Version="1.0.3" />

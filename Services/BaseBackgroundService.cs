@@ -41,20 +41,15 @@ namespace Coflnet.Sky.Base.Services
             var flipCons = Coflnet.Kafka.KafkaConsumer.Consume<LowPricedAuction>(config["KAFKA_HOST"], config["TOPICS:LOW_PRICED"], async lp =>
             {
                 var service = GetService();
-                await service.AddFlip(new Flip()
-                {
-                    AuctionId = lp.UId,
-                    FinderType = lp.Finder,
-                    TargetPrice = lp.TargetPrice,
-                });
+                
             }, stoppingToken, "flipbase");
 
             await Task.WhenAll(flipCons);
         }
 
-        private BaseService GetService()
+        private UpdaterService GetService()
         {
-            return scopeFactory.CreateScope().ServiceProvider.GetRequiredService<BaseService>();
+            return scopeFactory.CreateScope().ServiceProvider.GetRequiredService<UpdaterService>();
         }
     }
 }
