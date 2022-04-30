@@ -33,11 +33,6 @@ namespace Coflnet.Sky.Base.Services
         /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            using var scope = scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<BaseDbContext>();
-            // make sure all migrations are applied
-            await context.Database.MigrateAsync();
-
             var flipCons = Coflnet.Kafka.KafkaConsumer.Consume<LowPricedAuction>(config["KAFKA_HOST"], config["TOPICS:LOW_PRICED"], async lp =>
             {
                 var service = GetService();
