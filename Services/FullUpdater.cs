@@ -1,10 +1,10 @@
 using System;
 using Confluent.Kafka;
-using hypixel;
+using Coflnet.Sky.Core;
 using Coflnet.Sky.Sniper.Services;
 using RestSharp;
 
-namespace Coflnet.Sky.Base.Services
+namespace Coflnet.Sky.BFCS.Services
 {
     public class FullUpdater : Updater.Updater
     {

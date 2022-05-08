@@ -4,7 +4,7 @@ using System.Threading;
 using Confluent.Kafka;
 using System.Collections.Generic;
 
-namespace Coflnet.Sky.Base.Services
+namespace Coflnet.Sky.BFCS.Services
 {
     public class MockProd<TPayload> : IProducer<string, TPayload>
     {

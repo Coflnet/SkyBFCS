@@ -3,7 +3,7 @@ using WebSocketSharp.Server;
 using WebSocketSharp;
 using Coflnet.Sky.Commands.MC;
 
-namespace Coflnet.Sky.Base.Services
+namespace Coflnet.Sky.BFCS.Services
 {
     public class SniperSocket : MinecraftSocket
     {

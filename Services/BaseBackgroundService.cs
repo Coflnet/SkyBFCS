@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Coflnet.Sky.Base.Models;
+using Coflnet.Sky.BFCS.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,9 +8,10 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using System;
 using Microsoft.Extensions.Logging;
-using Coflnet.Sky.Base.Controllers;
+using Coflnet.Sky.BFCS.Controllers;
+using Coflnet.Sky.Core;
 
-namespace Coflnet.Sky.Base.Services
+namespace Coflnet.Sky.BFCS.Services
 {
 
     public class BaseBackgroundService : BackgroundService

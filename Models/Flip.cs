@@ -2,8 +2,9 @@
 using System;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
+using Coflnet.Sky.Core;
 
-namespace Coflnet.Sky.Base.Models
+namespace Coflnet.Sky.BFCS.Models
 {
     [DataContract]
     public class Flip

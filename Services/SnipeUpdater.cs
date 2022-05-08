@@ -1,6 +1,6 @@
 using Coflnet.Sky.Updater;
 using Confluent.Kafka;
-using hypixel;
+using Coflnet.Sky.Core;
 using Coflnet.Sky.Sniper.Services;
 using RestSharp;
 using Coflnet.Sky.Updater.Models;
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 
-namespace Coflnet.Sky.Base.Services
+namespace Coflnet.Sky.BFCS.Services
 {
     public class SnipeUpdater : NewUpdater
     {

@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Coflnet.Sky.Base.Models;
+using Coflnet.Sky.BFCS.Models;
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -12,8 +12,9 @@ using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
 using WebSocketSharp;
 using System.Net.Http;
 using StackExchange.Redis;
+using Coflnet.Sky.Core;
 
-namespace Coflnet.Sky.Base.Services
+namespace Coflnet.Sky.BFCS.Services
 {
     public class UpdaterService : BackgroundService
     {
@@ -37,12 +38,12 @@ namespace Coflnet.Sky.Base.Services
             var prod = redis.GetSubscriber();
             sniper.FoundSnipe += (lp) =>
             {
-                if(lp.TargetPrice < 4_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.1 || lp.Finder != LowPricedAuction.FinderType.SNIPER)
+                if(lp.TargetPrice < 4_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.1 && lp.Finder != LowPricedAuction.FinderType.SNIPER
+                   || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.5 || lp.DailyVolume < 3)
                     return;
                 prod.Publish("snipes", MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
                 Console.WriteLine($"found snipe :O {lp.Auction.Uuid} {lp.Auction.ItemName}" + lp.Finder);
                 Task.Run(async ()=>{
-                    await Task.Delay(500);
                     await httpClient.PostAsync($"https://sky.coflnet.com/api/flip/track/found/{lp.Auction.Uuid}?finder=test&price={lp.TargetPrice}", null);
                 });
             };
@@ -50,7 +51,7 @@ namespace Coflnet.Sky.Base.Services
             var updater = new SnipeUpdater(sniper);
             var stopping = stoppingToken;
 
-            updater.DoUpdates(0, stoppingToken);
+            await updater.DoUpdates(0, stoppingToken);
         }
     }
 }

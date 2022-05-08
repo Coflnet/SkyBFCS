@@ -1,10 +1,10 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Coflnet.Sky.Base.Models;
-using Coflnet.Sky.Base.Services;
+using Coflnet.Sky.BFCS.Models;
+using Coflnet.Sky.BFCS.Services;
 using Coflnet.Sky.Sniper.Services;
-using hypixel;
+using Coflnet.Sky.Core;
 using Jaeger.Samplers;
 using Jaeger.Senders;
 using Jaeger.Senders.Thrift;
@@ -21,7 +21,7 @@ using OpenTracing.Util;
 using Prometheus;
 using StackExchange.Redis;
 
-namespace Coflnet.Sky.Base
+namespace Coflnet.Sky.BFCS
 {
     public class Startup
     {

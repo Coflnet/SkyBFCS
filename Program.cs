@@ -1,10 +1,10 @@
 using System.Threading;
-using Coflnet.Sky.Base.Services;
+using Coflnet.Sky.BFCS.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using WebSocketSharp.Server;
 
-namespace Coflnet.Sky.Base
+namespace Coflnet.Sky.BFCS
 {
     public class Program
     {
