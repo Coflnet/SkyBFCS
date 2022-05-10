@@ -38,11 +38,10 @@ namespace Coflnet.Sky.BFCS.Services
             var prod = redis.GetSubscriber();
             sniper.FoundSnipe += (lp) =>
             {
-                if(lp.TargetPrice < 4_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.1 && lp.Finder != LowPricedAuction.FinderType.SNIPER
-                   || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.5 || lp.DailyVolume < 3)
+                if(lp.TargetPrice < 3_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.1 || lp.DailyVolume < 2)
                     return;
                 prod.Publish("snipes", MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
-                Console.WriteLine($"found snipe :O {lp.Auction.Uuid} {lp.Auction.ItemName}" + lp.Finder);
+                Console.WriteLine($"found {lp.Finder} :O {lp.Auction.Uuid} {lp.Auction.ItemName}");
                 Task.Run(async ()=>{
                     await httpClient.PostAsync($"https://sky.coflnet.com/api/flip/track/found/{lp.Auction.Uuid}?finder=test&price={lp.TargetPrice}", null);
                 });
