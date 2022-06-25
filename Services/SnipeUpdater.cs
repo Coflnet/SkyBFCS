@@ -28,13 +28,20 @@ namespace Coflnet.Sky.BFCS.Services
             {
                 while (true)
                 {
-                    var next = await newAuctions.Reader.ReadAsync();
-                    var a = Updater.Updater.ConvertAuction(next.auction, next.lastUpdated);
-                    if (!a.Bin)
-                        continue;
-                    a.Context["upage"] = next.pageId.ToString();
-                    a.Context["utry"] = next.tryCount.ToString();
-                    sniper.TestNewAuction(a);
+                    try
+                    {
+                        var next = await newAuctions.Reader.ReadAsync();
+                        var a = Updater.Updater.ConvertAuction(next.auction, next.lastUpdated);
+                        if (!a.Bin)
+                            continue;
+                        a.Context["upage"] = next.pageId.ToString();
+                        a.Context["utry"] = next.tryCount.ToString();
+                        sniper.TestNewAuction(a);
+                    }
+                    catch (System.Exception e)
+                    {
+                        dev.Logger.Instance.Error(e, "Testing new auction");
+                    }
                 }
             });
         }
@@ -48,7 +55,7 @@ namespace Coflnet.Sky.BFCS.Services
                 GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 0));
             pageToken.Cancel();
             return result.Max(a => a.Item1);
-        } 
+        }
 
         protected override void ProduceSells(List<SaveAuction> binupdate)
         {
