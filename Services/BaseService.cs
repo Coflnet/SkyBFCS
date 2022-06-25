@@ -38,6 +38,7 @@ namespace Coflnet.Sky.BFCS.Services
             var prod = redis.GetSubscriber();
             sniper.FoundSnipe += (lp) =>
             {
+                Console.Write("ff.");
                 if(lp.TargetPrice < 3_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.1 || lp.DailyVolume < 2)
                     return;
                 prod.Publish("snipes", MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
