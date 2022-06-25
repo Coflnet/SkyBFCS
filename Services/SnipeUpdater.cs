@@ -51,7 +51,7 @@ namespace Coflnet.Sky.BFCS.Services
             var pageToken = new CancellationTokenSource(20000);
             var result = await Task.WhenAll(
                 GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 4),
-                GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 2),
+                //GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 2),
                 GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 0));
             pageToken.Cancel();
             return result.Max(a => a.Item1);
