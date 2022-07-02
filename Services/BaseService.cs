@@ -46,7 +46,7 @@ namespace Coflnet.Sky.BFCS.Services
                 var timestamp = (long)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
                 Task.Run(async ()=>{
                     await httpClient.PostAsync($"https://sky.coflnet.com/api/flip/track/found/{lp.Auction.Uuid}?finder=test&price={lp.TargetPrice}&timeStamp={timestamp}", null);
-                });
+                }).ConfigureAwait(false);
             };
 
             var updater = new SnipeUpdater(sniper);
