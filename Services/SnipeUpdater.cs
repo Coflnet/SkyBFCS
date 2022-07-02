@@ -54,6 +54,8 @@ namespace Coflnet.Sky.BFCS.Services
                 //GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 2),
                 GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 0));
             pageToken.Cancel();
+            // wait for other processing to finish before updating lbin
+            await Task.Delay(1000);
             sniper.FinishedUpdate();
             return result.Max(a => a.Item1);
         }
