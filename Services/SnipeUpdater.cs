@@ -57,6 +57,7 @@ namespace Coflnet.Sky.BFCS.Services
             // wait for other processing to finish before updating lbin
             await Task.Delay(1000);
             sniper.FinishedUpdate();
+            sniper.PrintLogQueue();
             return result.Max(a => a.Item1);
         }
 
