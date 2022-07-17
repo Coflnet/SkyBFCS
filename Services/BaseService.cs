@@ -45,6 +45,7 @@ namespace Coflnet.Sky.BFCS.Services
                 Console.WriteLine($"found {lp.Finder} :O {lp.Auction.Uuid} {lp.Auction.ItemName}");
                 var timestamp = (long)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
                 Task.Run(async ()=>{
+                    await Task.Delay(500).ConfigureAwait(false);
                     await httpClient.PostAsync($"https://sky.coflnet.com/api/flip/track/found/{lp.Auction.Uuid}?finder=test&price={lp.TargetPrice}&timeStamp={timestamp}", null);
                 }).ConfigureAwait(false);
             };
@@ -52,7 +53,7 @@ namespace Coflnet.Sky.BFCS.Services
             var updater = new SnipeUpdater(sniper);
             var stopping = stoppingToken;
 
-            await updater.DoUpdates(0, stoppingToken);
+            await updater.DoUpdates(0, stoppingToken).ConfigureAwait(false);
         }
     }
 }
