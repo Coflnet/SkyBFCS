@@ -34,13 +34,7 @@ namespace Coflnet.Sky.BFCS.Services
         /// <returns></returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var flipCons = Coflnet.Kafka.KafkaConsumer.Consume<LowPricedAuction>(config["KAFKA_HOST"], config["TOPICS:LOW_PRICED"], async lp =>
-            {
-                var service = GetService();
-                
-            }, stoppingToken, "flipbase");
 
-            await Task.WhenAll(flipCons);
         }
 
         private UpdaterService GetService()

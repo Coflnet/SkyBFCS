@@ -20,6 +20,7 @@ using OpenTracing;
 using OpenTracing.Util;
 using Prometheus;
 using StackExchange.Redis;
+using Coflnet.Sky.Sniper.Client.Api;
 
 namespace Coflnet.Sky.BFCS
 {
@@ -50,6 +51,8 @@ namespace Coflnet.Sky.BFCS
             services.AddTransient<SniperService>();
             var redisOptions = ConfigurationOptions.Parse(Configuration["FLIP_REDIS_OPTIONS"]);
             services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMultiplexer.Connect(redisOptions));
+            services.AddSingleton<ISniperApi, SniperApi>(c=>new SniperApi(Configuration["SNIPER_BASE_URL"]));
+            services.AddSingleton<ExternalDataLoader>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

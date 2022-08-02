@@ -13,6 +13,7 @@ using WebSocketSharp;
 using System.Net.Http;
 using StackExchange.Redis;
 using Coflnet.Sky.Core;
+using Microsoft.Extensions.Configuration;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -21,11 +22,13 @@ namespace Coflnet.Sky.BFCS.Services
         private SniperService sniper;
         private static HttpClient httpClient = new HttpClient();
         private IConnectionMultiplexer redis;
+        private ExternalDataLoader externalLoader;
 
-        public UpdaterService(SniperService sniper, IConnectionMultiplexer redis)
+        public UpdaterService(SniperService sniper, IConnectionMultiplexer redis, ExternalDataLoader externalLoader)
         {
             this.sniper = sniper;
             this.redis = redis;
+            this.externalLoader = externalLoader;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -34,17 +37,18 @@ namespace Coflnet.Sky.BFCS.Services
             Console.WriteLine("doing full update");
             await new FullUpdater(sniper).Update(true);
             Console.WriteLine("=================\ndone full update");
-            
+
             var prod = redis.GetSubscriber();
             sniper.FoundSnipe += (lp) =>
             {
                 Console.Write("ff.");
-                if(lp.TargetPrice < 2_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.1 || lp.DailyVolume < 2)
+                if (lp.TargetPrice < 2_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.1 || lp.DailyVolume < 2)
                     return;
                 prod.Publish("snipes", MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
                 Console.WriteLine($"found {lp.Finder} :O {lp.Auction.Uuid} {lp.Auction.ItemName}");
                 var timestamp = (long)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
-                Task.Run(async ()=>{
+                Task.Run(async () =>
+                {
                     await Task.Delay(500).ConfigureAwait(false);
                     await httpClient.PostAsync($"https://sky.coflnet.com/api/flip/track/found/{lp.Auction.Uuid}?finder=test&price={lp.TargetPrice}&timeStamp={timestamp}", null);
                 }).ConfigureAwait(false);
@@ -52,7 +56,11 @@ namespace Coflnet.Sky.BFCS.Services
 
             var updater = new SnipeUpdater(sniper);
             var stopping = stoppingToken;
-
+            _ = Task.Run(async () =>
+            {
+                Console.WriteLine("loading external");
+                await externalLoader.Load();
+            }).ConfigureAwait(false);
             await updater.DoUpdates(0, stoppingToken).ConfigureAwait(false);
         }
     }
