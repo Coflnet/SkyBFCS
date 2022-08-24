@@ -38,13 +38,13 @@ namespace Coflnet.Sky.BFCS.Services
             await new FullUpdater(sniper).Update(true);
             Console.WriteLine("=================\ndone full update");
 
-            var prod = redis.GetSubscriber();
+            var prod = redis?.GetSubscriber();
             sniper.FoundSnipe += (lp) =>
             {
                 Console.Write("ff.");
                 if (lp.TargetPrice < 2_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.1 || lp.DailyVolume < 2)
                     return;
-                prod.Publish("snipes", MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
+                prod?.Publish("snipes", MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
                 Console.WriteLine($"found {lp.Finder} :O {lp.Auction.Uuid} {lp.Auction.ItemName}");
                 var timestamp = (long)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
                 Task.Run(async () =>
