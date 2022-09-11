@@ -33,7 +33,6 @@ namespace Coflnet.Sky.BFCS.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-
             Console.WriteLine("doing full update");
             await new FullUpdater(sniper).Update(true);
             Console.WriteLine("=================\ndone full update");
