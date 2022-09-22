@@ -24,6 +24,12 @@ namespace Coflnet.Sky.BFCS.Services
         {
             this.sniper = sniper;
             newAuctions = Channel.CreateUnbounded<Element>();
+            SpawnWorker(sniper);
+            SpawnWorker(sniper);
+        }
+
+        private void SpawnWorker(SniperService sniper)
+        {
             Task.Run(async () =>
             {
                 while (true)
@@ -31,7 +37,7 @@ namespace Coflnet.Sky.BFCS.Services
                     try
                     {
                         var next = await newAuctions.Reader.ReadAsync().ConfigureAwait(false);
-                        if(!next.auction.BuyItNow)
+                        if (!next.auction.BuyItNow)
                             continue;
                         var a = Updater.Updater.ConvertAuction(next.auction, next.lastUpdated);
                         a.Context["upage"] = next.pageId.ToString();
@@ -43,7 +49,7 @@ namespace Coflnet.Sky.BFCS.Services
                         dev.Logger.Instance.Error(e, "Testing new auction");
                     }
                 }
-            }).ConfigureAwait(false);
+            });
         }
 
         protected override async Task<DateTime> DoOneUpdate(DateTime lastUpdate, IProducer<string, SaveAuction> p, int page, OpenTracing.IScope siteSpan)
