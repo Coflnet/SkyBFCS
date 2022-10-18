@@ -31,8 +31,6 @@
 
   <ItemGroup>
     <PackageReference Include="WebSocketSharp.NetCore" Version="1.0.0" />
-    <PackageReference Include="Coflnet.Sky.Settings.Client" Version="0.1.0" />
-    <PackageReference Include="Coflnet.Sky.Sniper.Client" Version="0.3.0" />
     <PackageReference Include="Confluent.Kafka" Version="1.7.0" />
     <PackageReference Include="Jaeger.Core" Version="1.0.3" />
     <PackageReference Include="Jaeger.Senders.Thrift" Version="1.0.3" />
