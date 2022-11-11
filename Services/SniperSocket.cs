@@ -1,5 +1,4 @@
 using System;
-using WebSocketSharp.Server;
 using WebSocketSharp;
 using Coflnet.Sky.Commands.MC;
 

@@ -2,7 +2,6 @@ using Coflnet.Sky.Updater;
 using Confluent.Kafka;
 using Coflnet.Sky.Core;
 using Coflnet.Sky.Sniper.Services;
-using RestSharp;
 using Coflnet.Sky.Updater.Models;
 using OpenTracing;
 using System.Threading.Channels;

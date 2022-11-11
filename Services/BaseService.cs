@@ -1,19 +1,10 @@
 using System.Threading.Tasks;
-using Coflnet.Sky.BFCS.Models;
 using System;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Coflnet.Sky.Updater;
 using System.Threading;
 using Microsoft.Extensions.Hosting;
 using Coflnet.Sky.Sniper.Services;
-using Hypixel.NET;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.ObjectModel;
-using WebSocketSharp;
 using System.Net.Http;
 using StackExchange.Redis;
-using Coflnet.Sky.Core;
-using Microsoft.Extensions.Configuration;
 
 namespace Coflnet.Sky.BFCS.Services
 {

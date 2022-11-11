@@ -2,7 +2,6 @@ using System;
 using Confluent.Kafka;
 using Coflnet.Sky.Core;
 using Coflnet.Sky.Sniper.Services;
-using RestSharp;
 
 namespace Coflnet.Sky.BFCS.Services
 {

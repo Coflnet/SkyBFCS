@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Coflnet.Sky.Sniper.Client.Api;
 using Coflnet.Sky.Sniper.Models;
-using Coflnet.Sky.Core;
 using System;
 
 namespace Coflnet.Sky.BFCS.Services
