@@ -1,29 +1,19 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Coflnet.Sky.BFCS.Models;
 using Coflnet.Sky.BFCS.Services;
 using Coflnet.Sky.Sniper.Services;
 using Coflnet.Sky.Core;
-using Jaeger.Samplers;
-using Jaeger.Senders;
-using Jaeger.Senders.Thrift;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using OpenTracing;
-using OpenTracing.Util;
 using Prometheus;
 using StackExchange.Redis;
 using Coflnet.Sky.Sniper.Client.Api;
-using System.Threading.Tasks;
-using System.Net;
-using StackExchange.Redis.Profiling;
 
 namespace Coflnet.Sky.BFCS
 {
@@ -50,7 +40,7 @@ namespace Coflnet.Sky.BFCS
             });
 
             services.AddHostedService<UpdaterService>();
-            services.AddJaeger();
+            services.AddJaeger(Configuration);
             services.AddTransient<SniperService>();
             services.AddSingleton<ITokenService, TokenService>();
             services.AddSingleton<IConnectionMultiplexer>(provider =>

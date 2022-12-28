@@ -2,6 +2,8 @@ using System;
 using Confluent.Kafka;
 using Coflnet.Sky.Core;
 using Coflnet.Sky.Sniper.Services;
+using Coflnet.Sky.Updater.Models;
+using Coflnet.Sky.Updater;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -10,7 +12,7 @@ namespace Coflnet.Sky.BFCS.Services
         Sky.Sniper.Services.SniperService sniper;
 
 
-        public FullUpdater(SniperService sniper) : base(null)
+        public FullUpdater(SniperService sniper) : base(null, new MockSkinHandler())
         {
             this.sniper = sniper;
         }
@@ -31,9 +33,11 @@ namespace Coflnet.Sky.BFCS.Services
             });
         }
 
-        /*  protected override RestClient GetClient()
-          {
-              return new RestClient("https://localhost:7013");
-          }*/
+        private class MockSkinHandler : IItemSkinHandler
+        {
+            public void StoreIfNeeded(SaveAuction parsed, Auction auction)
+            {
+            }
+        }
     }
 }
