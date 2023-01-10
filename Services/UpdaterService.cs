@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Coflnet.Sky.Sniper.Services;
 using System.Net.Http;
 using StackExchange.Redis;
+using Coflnet.Sky.Updater;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -50,6 +51,7 @@ namespace Coflnet.Sky.BFCS.Services
                 Console.WriteLine("loading external");
                 await externalLoader.Load();
             }).ConfigureAwait(false);
+            new SingleBazaarUpdater(sniper).UpdateForEver(null);
             await updater.DoUpdates(0, stoppingToken).ConfigureAwait(false);
         }
     }
