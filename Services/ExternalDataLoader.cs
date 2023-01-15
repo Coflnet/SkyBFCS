@@ -33,6 +33,8 @@ namespace Coflnet.Sky.BFCS.Services
                 {
                     await LoadItemData(id);
                 }
+                sniper.State = SniperState.Ready;
+                logger.LogInformation("done loading external data");
             }
             catch (System.Exception e)
             {
