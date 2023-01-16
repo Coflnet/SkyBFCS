@@ -27,6 +27,7 @@ namespace Coflnet.Sky.BFCS.Services
             try
             {
                 logger.LogInformation("Loading external data");
+                sniper.State = SniperState.LadingLookup;
                 var ids = await api.ApiSniperLookupGetAsync();
                 logger.LogInformation("done with ids");
                 foreach (var id in ids)
