@@ -4,17 +4,23 @@ using Coflnet.Sky.Core;
 using Coflnet.Sky.Sniper.Services;
 using Coflnet.Sky.Updater.Models;
 using Coflnet.Sky.Updater;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Coflnet.Sky.BFCS.Services
 {
     public class FullUpdater : Updater.Updater
     {
         Sky.Sniper.Services.SniperService sniper;
+        ActiveUpdater activeUpdater;
+        ILogger<FullUpdater> logger;
 
 
-        public FullUpdater(SniperService sniper) : base(null, new MockSkinHandler())
+        public FullUpdater(SniperService sniper, ActiveUpdater activeUpdater, ILogger<FullUpdater> logger) : base(null, new MockSkinHandler())
         {
             this.sniper = sniper;
+            this.activeUpdater = activeUpdater;
+            this.logger = logger;
         }
 
         protected override IProducer<string, SaveAuction> GetP()
@@ -30,6 +36,19 @@ namespace Coflnet.Sky.BFCS.Services
             return new MockProd<AhStateSumary>((sum) =>
             {
                 Console.WriteLine("received sum");
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        if(sum == null)
+                            return;
+                        await activeUpdater.ProcessSumary(sum);
+                    }
+                    catch (System.Exception e)
+                    {
+                        logger.LogError(e, "Error processing sumary");
+                    }
+                });
             });
         }
 

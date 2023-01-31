@@ -6,6 +6,7 @@ using Coflnet.Sky.Sniper.Services;
 using System.Net.Http;
 using StackExchange.Redis;
 using Coflnet.Sky.Updater;
+using Microsoft.Extensions.Logging;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -15,18 +16,22 @@ namespace Coflnet.Sky.BFCS.Services
         private static HttpClient httpClient = new HttpClient();
         private IConnectionMultiplexer redis;
         private ExternalDataLoader externalLoader;
+        private FullUpdater fullUpdater;
+        private ILogger<UpdaterService> logger;
 
-        public UpdaterService(SniperService sniper, IConnectionMultiplexer redis, ExternalDataLoader externalLoader)
+        public UpdaterService(SniperService sniper, IConnectionMultiplexer redis, ExternalDataLoader externalLoader, FullUpdater fullUpdater, ILogger<UpdaterService> logger)
         {
             this.sniper = sniper;
             this.redis = redis;
             this.externalLoader = externalLoader;
+            this.fullUpdater = fullUpdater;
+            this.logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Console.WriteLine("doing full update");
-            await new FullUpdater(sniper).Update(true);
+            await fullUpdater.Update(true);
             Console.WriteLine("=================\ndone full update");
 
             var prod = redis?.GetSubscriber();
@@ -51,8 +56,29 @@ namespace Coflnet.Sky.BFCS.Services
                 Console.WriteLine("loading external");
                 await externalLoader.Load();
             }).ConfigureAwait(false);
+            StartBackgroundFullUpdates(stopping);
             new SingleBazaarUpdater(sniper).UpdateForEver(null);
             await updater.DoUpdates(0, stoppingToken).ConfigureAwait(false);
+        }
+
+        private void StartBackgroundFullUpdates(CancellationToken stopping)
+        {
+            _ = Task.Run(async () =>
+            {
+                Console.WriteLine("starting updater");
+                while (!stopping.IsCancellationRequested)
+                {
+                    try
+                    {
+                        await Task.Delay(1000 * 60 * 10, stopping);
+                        await fullUpdater.Update(true);
+                    }
+                    catch (System.Exception e)
+                    {
+                        logger.LogError(e, "Error updating full");
+                    }
+                }
+            }).ConfigureAwait(false);
         }
     }
 }

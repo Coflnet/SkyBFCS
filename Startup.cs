@@ -43,6 +43,8 @@ namespace Coflnet.Sky.BFCS
             services.AddJaeger(Configuration);
             services.AddTransient<SniperService>();
             services.AddSingleton<ITokenService, TokenService>();
+            services.AddSingleton<ActiveUpdater>();
+            services.AddSingleton<FullUpdater>();
             services.AddSingleton<IConnectionMultiplexer>(provider =>
             {
                 var logger = provider.GetRequiredService<ILogger<Startup>>();
