@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -19,7 +20,7 @@ namespace Coflnet.Sky.BFCS.Services
         // protected override string ApiBaseUrl => "https://localhost:7013";
         Channel<Element> newAuctions;
 
-        public SnipeUpdater(SniperService sniper)
+        public SnipeUpdater(SniperService sniper) : base(Updater.Updater.activitySource)
         {
             this.sniper = sniper;
             newAuctions = Channel.CreateUnbounded<Element>();
@@ -51,7 +52,7 @@ namespace Coflnet.Sky.BFCS.Services
             });
         }
 
-        protected override async Task<DateTime> DoOneUpdate(DateTime lastUpdate, IProducer<string, SaveAuction> p, int page, OpenTracing.IScope siteSpan)
+        protected override async Task<DateTime> DoOneUpdate(DateTime lastUpdate, IProducer<string, SaveAuction> p, int page, Activity siteSpan)
         {
             var pageToken = new CancellationTokenSource(20000);
             var result = await Task.WhenAll(
@@ -77,7 +78,7 @@ namespace Coflnet.Sky.BFCS.Services
             return new MockProd<SaveAuction>(a => sniper.TestNewAuction(a));
         }
 
-        protected override void FoundNew(int pageId, IProducer<string, SaveAuction> p, AuctionPage page, int tryCount, Auction auction, ISpan prodSpan)
+        protected override void FoundNew(int pageId, IProducer<string, SaveAuction> p, AuctionPage page, int tryCount, Auction auction, Activity prodSpan)
         {
             newAuctions.Writer.WriteAsync(new Element()
             {

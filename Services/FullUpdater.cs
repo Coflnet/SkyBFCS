@@ -6,6 +6,7 @@ using Coflnet.Sky.Updater.Models;
 using Coflnet.Sky.Updater;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -16,7 +17,7 @@ namespace Coflnet.Sky.BFCS.Services
         ILogger<FullUpdater> logger;
 
 
-        public FullUpdater(SniperService sniper, ActiveUpdater activeUpdater, ILogger<FullUpdater> logger) : base(null, new MockSkinHandler())
+        public FullUpdater(SniperService sniper, ActiveUpdater activeUpdater, ILogger<FullUpdater> logger, ActivitySource activitySource) : base(null, new MockSkinHandler(), activitySource)
         {
             this.sniper = sniper;
             this.activeUpdater = activeUpdater;
