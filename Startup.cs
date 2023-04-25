@@ -45,6 +45,7 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<ITokenService, TokenService>();
             services.AddSingleton<ActiveUpdater>();
             services.AddSingleton<FullUpdater>();
+            services.AddSingleton<Kafka.KafkaCreator>();
             services.AddSingleton<IConnectionMultiplexer>(provider =>
             {
                 var logger = provider.GetRequiredService<ILogger<Startup>>();

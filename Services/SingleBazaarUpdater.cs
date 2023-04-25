@@ -8,7 +8,7 @@ namespace Coflnet.Sky.BFCS.Services
     {
         private SniperService sniper;
 
-        public SingleBazaarUpdater(SniperService sniper)
+        public SingleBazaarUpdater(SniperService sniper) : base(null)
         {
             this.sniper = sniper;
             SecondsBetweenUpdates = 30;

@@ -20,7 +20,7 @@ namespace Coflnet.Sky.BFCS.Services
         // protected override string ApiBaseUrl => "https://localhost:7013";
         Channel<Element> newAuctions;
 
-        public SnipeUpdater(SniperService sniper) : base(Updater.Updater.activitySource)
+        public SnipeUpdater(SniperService sniper) : base(Updater.Updater.activitySource, null)
         {
             this.sniper = sniper;
             newAuctions = Channel.CreateUnbounded<Element>();

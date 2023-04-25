@@ -17,7 +17,8 @@ namespace Coflnet.Sky.BFCS.Services
         ILogger<FullUpdater> logger;
 
 
-        public FullUpdater(SniperService sniper, ActiveUpdater activeUpdater, ILogger<FullUpdater> logger, ActivitySource activitySource) : base(null, new MockSkinHandler(), activitySource)
+        public FullUpdater(SniperService sniper, ActiveUpdater activeUpdater, ILogger<FullUpdater> logger, ActivitySource activitySource, Kafka.KafkaCreator kafkaCreator) 
+            : base(null, new MockSkinHandler(), activitySource, kafkaCreator)
         {
             this.sniper = sniper;
             this.activeUpdater = activeUpdater;
