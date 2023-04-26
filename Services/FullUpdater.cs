@@ -7,6 +7,7 @@ using Coflnet.Sky.Updater;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -17,8 +18,8 @@ namespace Coflnet.Sky.BFCS.Services
         ILogger<FullUpdater> logger;
 
 
-        public FullUpdater(SniperService sniper, ActiveUpdater activeUpdater, ILogger<FullUpdater> logger, ActivitySource activitySource, Kafka.KafkaCreator kafkaCreator) 
-            : base(null, new MockSkinHandler(), activitySource, kafkaCreator)
+        public FullUpdater(SniperService sniper, ActiveUpdater activeUpdater, ILogger<FullUpdater> logger, ActivitySource activitySource)
+            : base(null, new MockSkinHandler(), activitySource, null)
         {
             this.sniper = sniper;
             this.activeUpdater = activeUpdater;
@@ -42,7 +43,7 @@ namespace Coflnet.Sky.BFCS.Services
                 {
                     try
                     {
-                        if(sum == null)
+                        if (sum == null)
                             return;
                         await activeUpdater.ProcessSumary(sum);
                     }
@@ -52,6 +53,14 @@ namespace Coflnet.Sky.BFCS.Services
                     }
                 });
             });
+        }
+
+        public override void AddSoldAuctions(IEnumerable<SaveAuction> auctionsToAdd, Activity span)
+        {
+            foreach (var item in auctionsToAdd)
+            {
+                sniper.AddSoldItem(item);
+            }
         }
 
         private class MockSkinHandler : IItemSkinHandler
