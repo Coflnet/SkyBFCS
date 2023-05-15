@@ -25,6 +25,7 @@ namespace Coflnet.Sky.BFCS.Controllers
         /// Creates a new instance of <see cref="BaseController"/>
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="service"></param>
         public BaseController(BaseDbContext context, UpdaterService service)
         {
             db = context;
