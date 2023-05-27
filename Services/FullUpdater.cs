@@ -24,6 +24,7 @@ namespace Coflnet.Sky.BFCS.Services
             this.sniper = sniper;
             this.activeUpdater = activeUpdater;
             this.logger = logger;
+            MillisecondsDelay = 300;
         }
 
         protected override IProducer<string, SaveAuction> GetP()
