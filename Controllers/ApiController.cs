@@ -16,17 +16,17 @@ namespace Coflnet.Sky.BFCS.Controllers
     /// </summary>
     [ApiController]
     [Route("[controller]")]
-    public class BaseController : ControllerBase
+    public class ApiController : ControllerBase
     {
         private readonly BaseDbContext db;
         private readonly UpdaterService service;
 
         /// <summary>
-        /// Creates a new instance of <see cref="BaseController"/>
+        /// Creates a new instance of <see cref="ApiController"/>
         /// </summary>
         /// <param name="context"></param>
         /// <param name="service"></param>
-        public BaseController(BaseDbContext context, UpdaterService service)
+        public ApiController(BaseDbContext context, UpdaterService service)
         {
             db = context;
             this.service = service;
