@@ -15,6 +15,11 @@ namespace Coflnet.Sky.BFCS.Services
 
         protected override void OnOpen()
         {
+            ConnectClient();
+        }
+
+        private void ConnectClient()
+        {
             var args = System.Web.HttpUtility.ParseQueryString(Context.RequestUri.Query);
             Console.WriteLine(Context.RequestUri.Query);
             clientSocket = new WebSocket("wss://sky.coflnet.com/modsocket" + Context.RequestUri.Query);
@@ -32,6 +37,16 @@ namespace Coflnet.Sky.BFCS.Services
             {
                 Console.WriteLine("error " + e.Message);
             };
+            clientSocket.OnClose += (s, e) =>
+            {
+                if (ConnectionState == WebSocketState.Open)
+                {
+                    ConnectClient();
+                    Console.WriteLine("reconnecting ");
+                }
+                else
+                    Console.WriteLine("closing because " + e.Reason);
+            };
 
             clientSocket.Connect();
         }
@@ -40,6 +55,7 @@ namespace Coflnet.Sky.BFCS.Services
         {
             Console.WriteLine("error " + e.Reason);
             base.OnClose(e);
+            clientSocket.Close();
         }
 
         protected override void OnMessage(MessageEventArgs e)
