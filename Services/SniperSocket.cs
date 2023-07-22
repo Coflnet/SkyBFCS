@@ -3,6 +3,8 @@ using WebSocketSharp;
 using Coflnet.Sky.Commands.MC;
 using Newtonsoft.Json;
 using Coflnet.Sky.Commands.Shared;
+using Coflnet.Sky.Sniper.Services;
+using Coflnet.Sky.Core;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -25,9 +27,7 @@ namespace Coflnet.Sky.BFCS.Services
             clientSocket = new WebSocket("wss://sky.coflnet.com/modsocket" + Context.RequestUri.Query);
             clientSocket.OnMessage += (s, ev) =>
             {
-                // forward
-                Send(ev.Data);
-                Console.WriteLine("rec: " + ev.Data);
+                HandleServerCommand(ev);
             };
             clientSocket.OnOpen += (s, ev) =>
             {
@@ -51,23 +51,20 @@ namespace Coflnet.Sky.BFCS.Services
             clientSocket.Connect();
         }
 
-        protected override void OnClose(CloseEventArgs e)
+        private void HandleServerCommand(MessageEventArgs ev)
         {
-            Console.WriteLine("error " + e.Reason);
-            base.OnClose(e);
-            clientSocket.Close();
-        }
-
-        protected override void OnMessage(MessageEventArgs e)
-        {
-            var deserialized = JsonConvert.DeserializeObject<Response>(e.Data);
+            var deserialized = JsonConvert.DeserializeObject<Response>(ev.Data);
             switch (deserialized.type)
             {
                 case "proxySync":
                     var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
                     this.SessionInfo = SelfUpdatingValue<SessionInfo>.CreateNoUpdate(data.SessionInfo);
-                    if (data.Settings == null)
+                    if (this.sessionLifesycle == null)
+                    {
                         this.sessionLifesycle = new ModSessionLifesycle(this);
+                        SendMessage("received account info, ready to speed up flips");
+                        DiHandler.GetService<SniperService>().FoundSnipe += SendSnipe;
+                    }
                     this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(data.Settings);
                     this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
                     break;
@@ -76,6 +73,37 @@ namespace Coflnet.Sky.BFCS.Services
                     clientSocket.Send(JsonConvert.SerializeObject(command));
                     SendMessage("Special test sniper connected to main instance, requesting account info");
                     break;
+                default:
+                    // forward
+                    Send(ev.Data);
+                    Console.WriteLine("rec: " + ev.Data);
+                    break;
+            }
+        }
+
+        private void SendSnipe(LowPricedAuction snipe)
+        {
+            TryAsyncTimes(async () =>
+            {
+                if (snipe.Auction.Context.ContainsKey("cname"))
+                    snipe.Auction.Context["cname"] = "-us";
+                await this.SendFlip(snipe);
+            }, "sending flip", 1);
+        }
+
+        protected override void OnClose(CloseEventArgs e)
+        {
+            Console.WriteLine("error " + e.Reason);
+            base.OnClose(e);
+            DiHandler.GetService<SniperService>().FoundSnipe -= SendSnipe;
+            clientSocket.Close();
+        }
+
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            var deserialized = JsonConvert.DeserializeObject<Response>(e.Data);
+            switch (deserialized.type)
+            {
                 default:
                     clientSocket.Send(e.Data);
                     break;
