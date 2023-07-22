@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using Prometheus;
 using StackExchange.Redis;
 using Coflnet.Sky.Sniper.Client.Api;
+using Coflnet.Sky.Commands.Shared;
 
 namespace Coflnet.Sky.BFCS
 {
@@ -67,6 +68,7 @@ namespace Coflnet.Sky.BFCS
             });
             services.AddSingleton<ISniperApi, SniperApi>(c => new SniperApi(Configuration["SNIPER_BASE_URL"]));
             services.AddSingleton<ExternalDataLoader>();
+            services.AddCoflService();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,6 +1,8 @@
 using System;
 using WebSocketSharp;
 using Coflnet.Sky.Commands.MC;
+using Newtonsoft.Json;
+using Coflnet.Sky.Commands.Shared;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -13,7 +15,6 @@ namespace Coflnet.Sky.BFCS.Services
 
         protected override void OnOpen()
         {
-            base.OnOpen();
             var args = System.Web.HttpUtility.ParseQueryString(Context.RequestUri.Query);
             Console.WriteLine(Context.RequestUri.Query);
             clientSocket = new WebSocket("wss://sky.coflnet.com/modsocket" + Context.RequestUri.Query);
@@ -25,7 +26,7 @@ namespace Coflnet.Sky.BFCS.Services
             };
             clientSocket.OnOpen += (s, ev) =>
             {
-                SendMessage("Welcome to Äkwav special test sniper");
+                SendMessage("Welcome to Äkwav special test sniper, connecting to main instance");
             };
             clientSocket.OnError += (s, e) =>
             {
@@ -43,7 +44,26 @@ namespace Coflnet.Sky.BFCS.Services
 
         protected override void OnMessage(MessageEventArgs e)
         {
-            clientSocket.Send(e.Data);
+            var deserialized = JsonConvert.DeserializeObject<Response>(e.Data);
+            switch (deserialized.type)
+            {
+                case "proxySync":
+                    var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
+                    this.SessionInfo = SelfUpdatingValue<SessionInfo>.CreateNoUpdate(data.SessionInfo);
+                    if (data.Settings == null)
+                        this.sessionLifesycle = new ModSessionLifesycle(this);
+                    this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(data.Settings);
+                    this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
+                    break;
+                case "loggedIn":
+                    var command = Response.Create("ProxyReqSync", 0);
+                    clientSocket.Send(JsonConvert.SerializeObject(command));
+                    SendMessage("Special test sniper connected to main instance, requesting account info");
+                    break;
+                default:
+                    clientSocket.Send(e.Data);
+                    break;
+            }
         }
     }
 }
