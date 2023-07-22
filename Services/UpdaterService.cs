@@ -30,9 +30,7 @@ namespace Coflnet.Sky.BFCS.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Console.WriteLine("doing full update");
-            await fullUpdater.Update(true);
-            Console.WriteLine("=================\ndone full update");
+            await DoFullUpdate(stoppingToken);
 
             var prod = redis?.GetSubscriber();
             sniper.FoundSnipe += (lp) =>
@@ -59,6 +57,25 @@ namespace Coflnet.Sky.BFCS.Services
             StartBackgroundFullUpdates(stopping);
             new SingleBazaarUpdater(sniper).UpdateForEver(null);
             await updater.DoUpdates(0, stoppingToken).ConfigureAwait(false);
+        }
+
+        private async Task DoFullUpdate(CancellationToken stoppingToken)
+        {
+            Console.WriteLine("doing full update");
+            while (true)
+            {
+                try
+                {
+                    await fullUpdater.Update(true);
+                    break;
+                }
+                catch (System.Exception e)
+                {
+                    logger.LogError(e, "Error updating full");
+                    await Task.Delay(1000 * 60, stoppingToken);
+                }
+            }
+            Console.WriteLine("=================\ndone full update");
         }
 
         private void StartBackgroundFullUpdates(CancellationToken stopping)
