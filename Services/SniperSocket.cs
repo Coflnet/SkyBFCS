@@ -135,7 +135,8 @@ namespace Coflnet.Sky.BFCS.Services
                     snipe.Auction.Context["cname"] += "-us";
                     Console.WriteLine("\n!!!!!!!!!!!!!!!!!!!!\nsending " + JsonConvert.SerializeObject(snipe));
                 }
-                await this.SendFlip(snipe);
+                if(await this.SendFlip(snipe))
+                    Console.WriteLine("sending failed :(");
             }, "sending flip", 1);
         }
 

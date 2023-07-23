@@ -16,6 +16,7 @@ using StackExchange.Redis;
 using Coflnet.Sky.Sniper.Client.Api;
 using Coflnet.Sky.Commands.Shared;
 using Coflnet.Sky.ModCommands.Services;
+using Coflnet.Sky.Commands;
 
 namespace Coflnet.Sky.BFCS
 {
@@ -70,6 +71,7 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<ISniperApi, SniperApi>(c => new SniperApi(Configuration["SNIPER_BASE_URL"]));
             services.AddSingleton<ExternalDataLoader>();
             services.AddSingleton<IIsSold, IsSoldMock>();
+            services.AddSingleton<IFlipReceiveTracker, FlipReceiveTrackerMock>();
             services.AddCoflService();
         }
 
