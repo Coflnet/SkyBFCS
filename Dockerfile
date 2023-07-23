@@ -1,13 +1,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0 as build
 WORKDIR /build
-RUN git clone --depth=1 https://github.com/Coflnet/HypixelSkyblock.git dev
-RUN git clone --depth=1 https://github.com/Coflnet/SkyUpdater.git
-RUN git clone --depth=1 -b implementation https://github.com/Coflnet/SkySniper.git
-RUN git clone --depth=1 https://github.com/Coflnet/SkyModCommands.git
-RUN git clone --depth=1 https://github.com/Coflnet/SkyFilter.git
-RUN git clone --depth=1 https://github.com/Ekwav/websocket-sharp.git
-RUN git clone --depth=1 https://github.com/Ekwav/Hypixel.NET.git
-RUN git clone --depth=1 https://github.com/Coflnet/SkyBackendForFrontend.git
+RUN git clone --depth=1 https://github.com/Coflnet/HypixelSkyblock.git dev \
+    && git clone --depth=1 https://github.com/Coflnet/SkyUpdater.git \
+    && git clone --depth=1 -b implementation https://github.com/Coflnet/SkySniper.git \
+    && git clone --depth=1 https://github.com/Coflnet/SkyModCommands.git \
+    && git clone --depth=1 https://github.com/Coflnet/SkyFilter.git \
+    && git clone --depth=1 https://github.com/Ekwav/websocket-sharp.git \
+    && git clone --depth=1 https://github.com/Ekwav/Hypixel.NET.git \
+    && git clone --depth=1 https://github.com/Coflnet/SkyBackendForFrontend.git
 WORKDIR /build/sky
 COPY SkyBase.csproj SkyBase.csproj
 RUN dotnet restore
