@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Collections.Generic;
 using Coflnet.Sky.BFCS.Services;
+using Coflnet.Sky.Core;
+using Coflnet.Sky.Commands.Shared;
+using Coflnet.Sky.Sniper.Services;
 
 namespace Coflnet.Sky.BFCS.Controllers
 {
@@ -18,18 +21,33 @@ namespace Coflnet.Sky.BFCS.Controllers
     [Route("[controller]")]
     public class ApiController : ControllerBase
     {
-        private readonly BaseDbContext db;
-        private readonly UpdaterService service;
+        private readonly SniperService service;
 
         /// <summary>
         /// Creates a new instance of <see cref="ApiController"/>
         /// </summary>
         /// <param name="context"></param>
         /// <param name="service"></param>
-        public ApiController(BaseDbContext context, UpdaterService service)
+        public ApiController(SniperService service)
         {
-            db = context;
             this.service = service;
+        }
+
+
+        /// <summary>
+        /// Indicates status of service, should be 200 (OK)
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("mockFlip")]
+        public async Task TrackFlip([FromBody] LowPricedAuction[] flips)
+        {
+            foreach (var item in flips)
+            {
+                item.Auction.Uuid = Guid.NewGuid().ToString().Replace("-", "");
+                item.Auction.Context = new() { { "pre-api", "" }, { "cname", item.Auction.ItemName } };
+                service.MockFoundFlip(item);
+            }
         }
     }
 }

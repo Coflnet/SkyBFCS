@@ -15,6 +15,7 @@ using Prometheus;
 using StackExchange.Redis;
 using Coflnet.Sky.Sniper.Client.Api;
 using Coflnet.Sky.Commands.Shared;
+using Coflnet.Sky.ModCommands.Services;
 
 namespace Coflnet.Sky.BFCS
 {
@@ -30,7 +31,7 @@ namespace Coflnet.Sky.BFCS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SkyBase", Version = "v1" });
@@ -68,6 +69,7 @@ namespace Coflnet.Sky.BFCS
             });
             services.AddSingleton<ISniperApi, SniperApi>(c => new SniperApi(Configuration["SNIPER_BASE_URL"]));
             services.AddSingleton<ExternalDataLoader>();
+            services.AddSingleton<IIsSold, IsSoldMock>();
             services.AddCoflService();
         }
 
