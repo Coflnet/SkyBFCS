@@ -14,6 +14,13 @@ namespace Coflnet.Sky.BFCS.Services
     public class SniperSocket : MinecraftSocket
     {
         private WebSocket clientSocket;
+        private static readonly ClassNameDictonary<McCommand> TryLocalFirst;
+
+        static SniperSocket()
+        {
+            TryLocalFirst = new ClassNameDictonary<McCommand>();
+            TryLocalFirst.Add<DialogCommand>();
+        }
         public SniperSocket()
         {
         }
@@ -37,7 +44,7 @@ namespace Coflnet.Sky.BFCS.Services
             {
                 TryAsyncTimes(async () =>
                 {
-                 await HandleServerCommand(ev);
+                    await HandleServerCommand(ev);
                 }, "handling server command", 1);
             };
             clientSocket.OnOpen += (s, ev) =>
@@ -90,6 +97,8 @@ namespace Coflnet.Sky.BFCS.Services
                     break;
                 case "flip":
                     // forward
+                    if (ConnectionState == WebSocketState.Closed)
+                        Close();
                     Send(ev.Data);
                     break;
                 default:
@@ -128,14 +137,14 @@ namespace Coflnet.Sky.BFCS.Services
         {
             TryAsyncTimes(async () =>
             {
-                if(snipe.TargetPrice - snipe.Auction.StartingBid < Settings.MinProfit)
+                if (snipe.TargetPrice - snipe.Auction.StartingBid < Settings.MinProfit)
                     return;
                 if (snipe.Auction.Context.ContainsKey("cname"))
                 {
                     snipe.Auction.Context["cname"] += "-us";
                     Console.WriteLine("\n!!!!!!!!!!!!!!!!!!!!\nsending " + JsonConvert.SerializeObject(snipe));
                 }
-                if(await this.SendFlip(snipe))
+                if (await this.SendFlip(snipe))
                     Console.WriteLine("sending failed :(");
             }, "sending flip", 1);
         }
@@ -159,6 +168,19 @@ namespace Coflnet.Sky.BFCS.Services
         private async Task HandleCommand(MessageEventArgs e)
         {
             var deserialized = JsonConvert.DeserializeObject<Response>(e.Data);
+            if (TryLocalFirst.ContainsKey(deserialized.type.ToLower()))
+            {
+                try
+                {
+                    await Commands[deserialized.type.ToLower()].Execute(this, deserialized.data);
+                    return;
+                }
+                catch (System.Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    // fall back to sending to server
+                }
+            }
             switch (deserialized.type)
             {
                 case "sinfo":
