@@ -146,7 +146,7 @@ public class SniperSocket : MinecraftSocket
         {
             if (snipe.TargetPrice - snipe.Auction.StartingBid < Settings.MinProfit)
                 return;
-            if (snipe.Auction.Context.ContainsKey("cname"))
+            if (snipe.Auction.Context.ContainsKey("cname") && !snipe.Auction.Context["cname"].EndsWith("-us"))
             {
                 snipe.Auction.Context["cname"] += "-us";
                 Console.WriteLine("\n!!!!!!!!!!!!!!!!!!!!\nsending " + JsonConvert.SerializeObject(snipe));
