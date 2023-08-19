@@ -19,6 +19,7 @@ namespace Coflnet.Sky.BFCS.Services
         Sky.Sniper.Services.SniperService sniper;
         // protected override string ApiBaseUrl => "https://localhost:7013";
         Channel<Element> newAuctions;
+        public event Action<SaveAuction> NewAuction;
 
         public SnipeUpdater(SniperService sniper) : base(Updater.Updater.activitySource, null)
         {
@@ -43,6 +44,7 @@ namespace Coflnet.Sky.BFCS.Services
                         a.Context["upage"] = next.pageId.ToString();
                         a.Context["utry"] = next.tryCount.ToString();
                         sniper.TestNewAuction(a);
+                        NewAuction?.Invoke(a);
                     }
                     catch (System.Exception e)
                     {

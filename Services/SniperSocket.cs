@@ -19,6 +19,7 @@ public class SniperSocket : MinecraftSocket
     {
         TryLocalFirst = new ClassNameDictonary<McCommand>();
         TryLocalFirst.Add<DialogCommand>();
+        TryLocalFirst.Add<TimeCommand>();
     }
     public SniperSocket()
     {
@@ -89,6 +90,8 @@ public class SniperSocket : MinecraftSocket
                     this.sessionLifesycle = new ModSessionLifesycle(this);
                     SendMessage("received account info, ready to speed up flips");
                     DiHandler.GetService<SniperService>().FoundSnipe += SendSnipe;
+                    if (data.Settings.AllowedFinders.HasFlag(LowPricedAuction.FinderType.USER))
+                        DiHandler.GetService<SnipeUpdater>().NewAuction += UserFlip;
                 }
                 FixFilter(data.Settings.BlackList);
                 FixFilter(data.Settings.WhiteList);
@@ -111,13 +114,24 @@ public class SniperSocket : MinecraftSocket
             default:
                 // forward
                 Send(ev.Data);
-                Console.WriteLine("rec: " + ev.Data);
                 if (this.sessionLifesycle != null)
                 {
                     this.sessionLifesycle.HouseKeeping();
                 }
                 break;
         }
+    }
+
+    private void UserFlip(SaveAuction obj)
+    {
+        SendSnipe(new LowPricedAuction()
+        {
+            AdditionalProps = new(),
+            Auction = obj,
+            DailyVolume = 0,
+            Finder = LowPricedAuction.FinderType.USER,
+            TargetPrice = obj.StartingBid
+        });
     }
 
     private static void FixFilter(List<ListEntry> list)
@@ -149,7 +163,6 @@ public class SniperSocket : MinecraftSocket
             if (snipe.Auction.Context.ContainsKey("cname") && !snipe.Auction.Context["cname"].EndsWith("-us"))
             {
                 snipe.Auction.Context["cname"] += "-us";
-                Console.WriteLine("\n!!!!!!!!!!!!!!!!!!!!\nsending " + JsonConvert.SerializeObject(snipe));
             }
             if (await this.SendFlip(snipe))
                 Console.WriteLine("sending failed :(");
