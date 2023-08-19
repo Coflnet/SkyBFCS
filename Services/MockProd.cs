@@ -99,5 +99,10 @@ namespace Coflnet.Sky.BFCS.Services
         {
             throw new NotImplementedException();
         }
+
+        public void SetSaslCredentials(string username, string password)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
