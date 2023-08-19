@@ -43,7 +43,7 @@ namespace Coflnet.Sky.BFCS.Services
             }
         }
 
-        private async Task LoadItemData(string id)
+        private async Task LoadItemData(string id, int retryCount = 0)
         {
             var data = (await api.ApiSniperLookupItemIdGetAsync(id, config["SNIPER_TRANSFER_TOKEN"])).Trim('"');
             if (data == null)
@@ -57,8 +57,11 @@ namespace Coflnet.Sky.BFCS.Services
             }
             catch (System.Exception e)
             {
+                if(retryCount > 3)
+                    return;
                 logger.LogError(e, $"Error loading {id}\n{data}");
                 await Task.Delay(2000);
+                await LoadItemData(id, retryCount + 1);
             }
         }
     }
