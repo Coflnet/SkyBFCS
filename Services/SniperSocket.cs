@@ -71,11 +71,9 @@ public class SniperSocket : MinecraftSocket
 
     private async Task HandleServerCommand(MessageEventArgs ev)
     {
-
         if (ConnectionState == WebSocketState.Closed)
         {
-            Close();
-            OnClose();
+            clientSocket.Close();
             return;
         }
         var deserialized = JsonConvert.DeserializeObject<Response>(ev.Data);
