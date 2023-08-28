@@ -71,6 +71,13 @@ public class SniperSocket : MinecraftSocket
 
     private async Task HandleServerCommand(MessageEventArgs ev)
     {
+
+        if (ConnectionState == WebSocketState.Closed)
+        {
+            Close();
+            OnClose();
+            return;
+        }
         var deserialized = JsonConvert.DeserializeObject<Response>(ev.Data);
         switch (deserialized.type)
         {
@@ -162,7 +169,7 @@ public class SniperSocket : MinecraftSocket
                 return;
             if (snipe.Auction.Context.ContainsKey("cname") && !snipe.Auction.Context["cname"].EndsWith("-us"))
             {
-                snipe.Auction.Context["cname"] += "-us";
+                snipe.Auction.Context["cname"] += McColorCodes.GRAY + "-us";
             }
             if (await this.SendFlip(snipe))
                 Console.WriteLine("sending failed :(");
@@ -171,10 +178,10 @@ public class SniperSocket : MinecraftSocket
 
     protected override void OnClose(CloseEventArgs e)
     {
-        Console.WriteLine("error " + e.Reason);
-        base.OnClose(e);
         DiHandler.GetService<SniperService>().FoundSnipe -= SendSnipe;
         clientSocket.Close();
+        Console.WriteLine("error " + e.Reason);
+        base.OnClose(e);
     }
 
     protected override void OnMessage(MessageEventArgs e)
