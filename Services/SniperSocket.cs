@@ -211,6 +211,10 @@ public class SniperSocket : MinecraftSocket
             case "sinfo":
                 await Commands["blocked"].Execute(this, deserialized.data);
                 break;
+            case "report":
+                clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"Sent {JsonConvert.SerializeObject(LastSent)}")));
+                clientSocket.Send(e.Data);
+                break;
             default:
                 clientSocket.Send(e.Data);
                 break;
