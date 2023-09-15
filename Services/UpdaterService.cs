@@ -87,8 +87,10 @@ namespace Coflnet.Sky.BFCS.Services
                 {
                     try
                     {
-                        await Task.Delay(1000 * 60 * 10, stopping);
+                        await Task.Delay(TimeSpan.FromMinutes(9), stopping);
                         await fullUpdater.Update(true);
+                        await Task.Delay(TimeSpan.FromMinutes(1), stopping);
+                        RefreshAllMedians();
                     }
                     catch (System.Exception e)
                     {
@@ -96,6 +98,18 @@ namespace Coflnet.Sky.BFCS.Services
                     }
                 }
             }).ConfigureAwait(false);
+        }
+
+        private void RefreshAllMedians()
+        {
+            foreach (var item in sniper.Lookups)
+            {
+                foreach (var bucket in item.Value.Lookup)
+                {
+                    // make sure all medians are up to date
+                    sniper.UpdateMedian(bucket.Value, (item.Key, bucket.Key));
+                }
+            }
         }
     }
 }
