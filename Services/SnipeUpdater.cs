@@ -73,6 +73,7 @@ namespace Coflnet.Sky.BFCS.Services
         {
             foreach (var item in binupdate)
                 sniper.AddSoldItem(item);
+            dev.Logger.Instance.Info("Recieved " + binupdate.Count + " sold items");
         }
 
         protected override IProducer<string, SaveAuction> GetProducer()
