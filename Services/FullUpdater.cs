@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -37,6 +38,7 @@ namespace Coflnet.Sky.BFCS.Services
         }
         protected override IProducer<string, AhStateSumary> GetSumaryProducer()
         {
+            var semaphore = new SemaphoreSlim(1);
             return new MockProd<AhStateSumary>((sum) =>
             {
                 Console.WriteLine("received sum");
@@ -44,6 +46,7 @@ namespace Coflnet.Sky.BFCS.Services
                 {
                     try
                     {
+                        await semaphore.WaitAsync();
                         if (sum == null)
                             return;
                         await activeUpdater.ProcessSumary(sum);
@@ -51,6 +54,10 @@ namespace Coflnet.Sky.BFCS.Services
                     catch (System.Exception e)
                     {
                         logger.LogError(e, "Error processing sumary");
+                    }
+                    finally
+                    {
+                        semaphore.Release();
                     }
                 });
             });
