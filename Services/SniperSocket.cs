@@ -37,9 +37,10 @@ public class SniperSocket : MinecraftSocket
 
     private void ConnectClient()
     {
-        var args = System.Web.HttpUtility.ParseQueryString(Context.RequestUri.Query);
-        Console.WriteLine(Context.RequestUri.Query);
-        clientSocket = new WebSocket("wss://sky.coflnet.com/modsocket" + Context.RequestUri.Query + "&type=us-proxy");
+        var args = QueryString;
+        var x = System.Web.HttpUtility.ParseQueryString("");
+        Console.WriteLine(QueryString.ToString());
+        clientSocket = new WebSocket("wss://sky.coflnet.com/modsocket" + QueryString + "&type=us-proxy");
         clientSocket.OnMessage += (s, ev) =>
         {
             TryAsyncTimes(async () =>
@@ -57,7 +58,7 @@ public class SniperSocket : MinecraftSocket
         };
         clientSocket.OnClose += (s, e) =>
         {
-            if (ConnectionState == WebSocketState.Open)
+            if (ReadyState == WebSocketState.Open)
             {
                 ConnectClient();
                 Console.WriteLine("reconnecting ");
@@ -71,7 +72,7 @@ public class SniperSocket : MinecraftSocket
 
     private async Task HandleServerCommand(MessageEventArgs ev)
     {
-        if (ConnectionState == WebSocketState.Closed)
+        if (ReadyState == WebSocketState.Closed)
         {
             clientSocket.Close();
             return;
@@ -112,7 +113,7 @@ public class SniperSocket : MinecraftSocket
                 break;
             case "flip":
                 // forward
-                if (ConnectionState == WebSocketState.Closed)
+                if (ReadyState == WebSocketState.Closed)
                     Close();
                 Send(ev.Data);
                 break;
