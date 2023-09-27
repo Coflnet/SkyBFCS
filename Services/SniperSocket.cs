@@ -40,7 +40,7 @@ public class SniperSocket : MinecraftSocket
         var args = QueryString;
         var x = System.Web.HttpUtility.ParseQueryString("");
         Console.WriteLine(QueryString.ToString());
-        clientSocket = new WebSocket("wss://sky.coflnet.com/modsocket" + QueryString + "&type=us-proxy");
+        clientSocket = new WebSocket("wss://sky.coflnet.com/modsocket?" + QueryString + "&type=us-proxy");
         clientSocket.OnMessage += (s, ev) =>
         {
             TryAsyncTimes(async () =>
