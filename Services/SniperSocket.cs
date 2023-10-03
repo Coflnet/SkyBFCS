@@ -126,6 +126,7 @@ public class SniperSocket : MinecraftSocket
                 }
                 break;
         }
+        await Task.Delay(0);
     }
 
     private void UserFlip(SaveAuction obj)
