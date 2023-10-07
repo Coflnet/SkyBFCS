@@ -1,4 +1,3 @@
-using Coflnet.Sky.Updater.Models;
 using Coflnet.Sky.ModCommands.Services;
 using Coflnet.Sky.Commands;
 using System.Threading.Tasks;
