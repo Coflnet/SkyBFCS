@@ -45,7 +45,7 @@ namespace Coflnet.Sky.BFCS
             services.AddHostedService<UpdaterService>();
             services.AddJaeger(Configuration);
             services.AddSingleton<SniperService>();
-            services.AddSingleton<ITokenService, TokenService>();
+            services.AddSingleton<ITokenService, Sniper.Services.TokenService>();
             services.AddSingleton<ActiveUpdater>();
             services.AddSingleton<FullUpdater>();
             services.AddSingleton<Kafka.KafkaCreator>();
