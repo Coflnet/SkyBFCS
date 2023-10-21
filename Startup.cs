@@ -17,6 +17,8 @@ using Coflnet.Sky.Sniper.Client.Api;
 using Coflnet.Sky.Commands.Shared;
 using Coflnet.Sky.ModCommands.Services;
 using Coflnet.Sky.Commands;
+using Coflnet.Sky.Core.Services;
+using System.Net.Http;
 
 namespace Coflnet.Sky.BFCS
 {
@@ -72,6 +74,8 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<ExternalDataLoader>();
             services.AddSingleton<IIsSold, IsSoldMock>();
             services.AddSingleton<IFlipReceiveTracker, FlipReceiveTrackerMock>();
+            services.AddSingleton<HypixelItemService>();
+            services.AddSingleton<HttpClient>();
             services.AddCoflService();
         }
 
