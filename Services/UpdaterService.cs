@@ -30,6 +30,7 @@ namespace Coflnet.Sky.BFCS.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await sniper.Init();
             await DoFullUpdate(stoppingToken);
 
             var prod = redis?.GetSubscriber();

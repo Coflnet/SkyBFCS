@@ -20,6 +20,7 @@ public class SniperSocket : MinecraftSocket
         TryLocalFirst = new ClassNameDictonary<McCommand>();
         TryLocalFirst.Add<DialogCommand>();
         TryLocalFirst.Add<TimeCommand>();
+        TryLocalFirst.Add<PingCommand>();
     }
     public SniperSocket()
     {
