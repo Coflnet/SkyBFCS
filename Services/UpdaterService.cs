@@ -38,7 +38,7 @@ namespace Coflnet.Sky.BFCS.Services
             {
                 if (lp.TargetPrice < 2_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.08 || lp.DailyVolume < 0.2 || lp.Finder == Core.LowPricedAuction.FinderType.STONKS)
                     return;
-                prod?.Publish("snipes", MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
+                prod?.Publish(new RedisChannel("snipes", RedisChannel.PatternMode.Literal), MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
                 Console.WriteLine($"found {lp.Finder} :O {lp.Auction.Uuid} {lp.Auction.ItemName}");
                 var timestamp = (long)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
                 Task.Run(async () =>
