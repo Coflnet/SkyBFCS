@@ -88,9 +88,9 @@ namespace Coflnet.Sky.BFCS.Services
                 {
                     try
                     {
-                        await Task.Delay(TimeSpan.FromMinutes(8), stopping);
-                        await fullUpdater.Update(true);
                         await Task.Delay(TimeSpan.FromMinutes(2), stopping);
+                        await fullUpdater.Update(true);
+                        await Task.Delay(TimeSpan.FromMinutes(1), stopping);
                         RefreshAllMedians();
                     }
                     catch (System.Exception e)
