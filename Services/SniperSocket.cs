@@ -86,7 +86,8 @@ public class SniperSocket : MinecraftSocket
                 Console.WriteLine(deserialized.data);
                 if (data.AccountInfo.Tier < AccountTier.PREMIUM_PLUS)
                 {
-                    SendMessage("Sorry, your account does not have premium plus, redirecting back", null, "Prem+ is required for this service");
+                    Dialog(db => db.Break.MsgLine("Sorry, your account does not have premium plus, redirecting back", null, "Prem+ is required for this service")
+                        .CoflCommand<PurchaseCommand>($"{McColorCodes.GREEN}Click here to purchase Prem+", "prem+", "Start purchasing Prem+"));
                     ExecuteCommand("/cofl start");
                     Close();
                     return;
