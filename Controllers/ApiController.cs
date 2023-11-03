@@ -26,7 +26,6 @@ namespace Coflnet.Sky.BFCS.Controllers
         /// <summary>
         /// Creates a new instance of <see cref="ApiController"/>
         /// </summary>
-        /// <param name="context"></param>
         /// <param name="service"></param>
         public ApiController(SniperService service)
         {
