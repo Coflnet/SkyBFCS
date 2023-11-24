@@ -32,8 +32,10 @@ namespace Coflnet.Sky.BFCS.Services
         {
             return new MockProd<SaveAuction>(a =>
             {
-                if (a.Bin)
-                    sniper.TestNewAuction(a, false);
+                if (!a.Bin)
+                    return;
+                sniper.TestNewAuction(a, false);
+                Console.WriteLine("received auction " + a.Uuid);
             });
         }
         protected override IProducer<string, AhStateSumary> GetSumaryProducer()
