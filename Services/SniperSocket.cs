@@ -82,7 +82,8 @@ public class SniperSocket : MinecraftSocket
         switch (deserialized.type)
         {
             case "proxySync":
-                return HandleProxySettingsSync(deserialized);
+                await HandleProxySettingsSync(deserialized);
+                break;
             case "loggedIn":
                 var command = Response.Create("ProxyReqSync", 0);
                 clientSocket.Send(JsonConvert.SerializeObject(command));
