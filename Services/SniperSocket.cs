@@ -82,32 +82,7 @@ public class SniperSocket : MinecraftSocket
         switch (deserialized.type)
         {
             case "proxySync":
-                var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
-                Console.WriteLine(deserialized.data);
-                if (data.AccountInfo.Tier < AccountTier.PREMIUM_PLUS)
-                {
-                    Dialog(db => db.Break.MsgLine("Sorry, your account does not have premium plus, redirecting back", null, "Prem+ is required for this service")
-                        .CoflCommand<PurchaseCommand>($"{McColorCodes.GREEN}Click here to purchase Prem+", "prem+", "Start purchasing Prem+"));
-                    ExecuteCommand("/cofl start");
-                    Close();
-                    return;
-                }
-                this.SessionInfo = SelfUpdatingValue<SessionInfo>.CreateNoUpdate(data.SessionInfo);
-                if (this.sessionLifesycle == null)
-                {
-                    this.sessionLifesycle = new ModSessionLifesycle(this);
-                    SendMessage("received account info, ready to speed up flips");
-                    DiHandler.GetService<SniperService>().FoundSnipe += SendSnipe;
-                    if (data.Settings.AllowedFinders.HasFlag(LowPricedAuction.FinderType.USER))
-                        DiHandler.GetService<SnipeUpdater>().NewAuction += UserFlip;
-                }
-                FixFilter(data.Settings.BlackList);
-                FixFilter(data.Settings.WhiteList);
-                data.Settings.MatchesSettings(BlacklistCommand.GetTestFlip("test"));
-                this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(data.Settings);
-                this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
-                sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay));
-                break;
+                return HandleProxySettingsSync(deserialized);
             case "loggedIn":
                 var command = Response.Create("ProxyReqSync", 0);
                 clientSocket.Send(JsonConvert.SerializeObject(command));
@@ -129,6 +104,35 @@ public class SniperSocket : MinecraftSocket
                 break;
         }
         await Task.Delay(0);
+    }
+
+    private Task HandleProxySettingsSync(Response deserialized)
+    {
+        var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
+        Console.WriteLine(deserialized.data);
+        if (data.AccountInfo.Tier < AccountTier.PREMIUM_PLUS)
+        {
+            Dialog(db => db.Break.MsgLine("Sorry, your account does not have premium plus, redirecting back", null, "Prem+ is required for this service")
+                .CoflCommand<PurchaseCommand>($"{McColorCodes.GREEN}Click here to purchase Prem+", "prem+", "Start purchasing Prem+"));
+            ExecuteCommand("/cofl start");
+            Close();
+            return;
+        }
+        this.SessionInfo = SelfUpdatingValue<SessionInfo>.CreateNoUpdate(data.SessionInfo);
+        if (this.sessionLifesycle == null)
+        {
+            this.sessionLifesycle = new ModSessionLifesycle(this);
+            SendMessage("received account info, ready to speed up flips");
+            DiHandler.GetService<SniperService>().FoundSnipe += SendSnipe;
+            if (data.Settings.AllowedFinders.HasFlag(LowPricedAuction.FinderType.USER))
+                DiHandler.GetService<SnipeUpdater>().NewAuction += UserFlip;
+        }
+        FixFilter(data.Settings.BlackList);
+        FixFilter(data.Settings.WhiteList);
+        data.Settings.MatchesSettings(BlacklistCommand.GetTestFlip("test"));
+        this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(data.Settings);
+        this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
+        sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay));
     }
 
     private void UserFlip(SaveAuction obj)
