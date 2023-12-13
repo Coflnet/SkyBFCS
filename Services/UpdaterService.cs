@@ -89,6 +89,7 @@ namespace Coflnet.Sky.BFCS.Services
                     try
                     {
                         await Task.Delay(TimeSpan.FromMinutes(2), stopping);
+                        Console.WriteLine("doing full update");
                         await fullUpdater.Update(true);
                         await Task.Delay(TimeSpan.FromMinutes(1), stopping);
                         RefreshAllMedians();
