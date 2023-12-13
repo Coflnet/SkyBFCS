@@ -41,11 +41,13 @@ namespace Coflnet.Sky.BFCS.Services
 
         protected override Task<int> Save(AuctionPage res, DateTime lastUpdate, AhStateSumary sumary, IProducer<string, SaveAuction> prod, ActivityContext pageSpanContext)
         {
-            var a = res.Auctions.Where(item => item.BuyItNow)
+            var a = res.Auctions//.Where(item => item.BuyItNow)
                     .Select(a => ConvertAuction(a, res.LastUpdated));
             foreach (var auction in a)
             {
-                sniper.TestNewAuction(auction, false);
+                if (auction.Bin)
+                    sniper.TestNewAuction(auction, false);
+                sumary.ActiveAuctions[auction.UId] = auction.End.Ticks;
             }
             logger.LogInformation($"saving {a.Count()} bin auctions");
             return Task.FromResult(a.Count());
