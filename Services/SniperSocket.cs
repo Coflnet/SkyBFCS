@@ -13,6 +13,7 @@ namespace Coflnet.Sky.BFCS.Services;
 public class SniperSocket : MinecraftSocket
 {
     private WebSocket clientSocket;
+    public override string CurrentRegion => "us";
     private static readonly ClassNameDictonary<McCommand> TryLocalFirst;
 
     static SniperSocket()
@@ -115,6 +116,7 @@ public class SniperSocket : MinecraftSocket
         {
             Dialog(db => db.Break.MsgLine("Sorry, your account does not have premium plus, redirecting back", null, "Prem+ is required for this service")
                 .CoflCommand<PurchaseCommand>($"{McColorCodes.GREEN}Click here to purchase Prem+", "prem+", "Start purchasing Prem+"));
+            ExecuteCommand("/cofl switchregion eu");
             ExecuteCommand("/cofl start");
             Close();
             return;
