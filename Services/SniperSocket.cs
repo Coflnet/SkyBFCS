@@ -8,6 +8,8 @@ using Coflnet.Sky.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using Coflnet.Sky.BFCS.Models;
 
 namespace Coflnet.Sky.BFCS.Services;
 public class SniperSocket : MinecraftSocket
@@ -15,6 +17,7 @@ public class SniperSocket : MinecraftSocket
     private WebSocket clientSocket;
     public override string CurrentRegion => "us";
     private static readonly ClassNameDictonary<McCommand> TryLocalFirst;
+    private ConcurrentQueue<string> flipUuidsSent = new ConcurrentQueue<string>();
 
     static SniperSocket()
     {
@@ -94,6 +97,9 @@ public class SniperSocket : MinecraftSocket
                 // forward
                 if (ReadyState == WebSocketState.Closed)
                     Close();
+                var snipe = JsonConvert.DeserializeObject<ForwardedFlip>(deserialized.data);
+                if (IsReceived(snipe.Id))
+                    return; // already sent
                 Send(ev.Data);
                 break;
             default:
@@ -180,9 +186,23 @@ public class SniperSocket : MinecraftSocket
             {
                 snipe.Auction.Context["cname"] += McColorCodes.GRAY + "-us";
             }
+            if (IsReceived(snipe.Auction.Uuid))
+                return; // already sent
             if (await this.SendFlip(snipe))
                 Console.WriteLine("sending failed :(");
         }, "sending flip", 1);
+    }
+
+    private bool IsReceived(string uuid)
+    {
+        if(uuid == null)
+            return false;
+        if (flipUuidsSent.Contains(uuid))
+            return true;
+        flipUuidsSent.Enqueue(uuid);
+        if (flipUuidsSent.Count > 20)
+            flipUuidsSent.TryDequeue(out _);
+        return false;
     }
 
     protected override void OnClose(CloseEventArgs e)

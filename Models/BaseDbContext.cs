@@ -7,7 +7,6 @@ namespace Coflnet.Sky.BFCS.Models
     /// </summary>
     public class BaseDbContext : DbContext
     {
-        public DbSet<Flip> Flips { get; set; }
 
         /// <summary>
         /// Creates a new instance of <see cref="BaseDbContext"/>
@@ -26,10 +25,6 @@ namespace Coflnet.Sky.BFCS.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Flip>(entity =>
-            {
-                entity.HasIndex(e => new { e.AuctionId });
-            });
         }
     }
 }

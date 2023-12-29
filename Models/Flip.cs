@@ -7,19 +7,11 @@ using Coflnet.Sky.Core;
 namespace Coflnet.Sky.BFCS.Models
 {
     [DataContract]
-    public class Flip
+    public class ForwardedFlip
     {
-        [IgnoreDataMember]
-        [JsonIgnore]
-        public int Id { get; set; }
-        [DataMember(Name = "auctionId")]
-        public long AuctionId { get; set; }
-        [DataMember(Name = "targetPrice")]
-        public int TargetPrice { get; set; }
-        [DataMember(Name = "finderType")]
-        public LowPricedAuction.FinderType FinderType { get; set; }
-        [System.ComponentModel.DataAnnotations.Timestamp]
-        [DataMember(Name = "timestamp")]
-        public DateTime Timestamp { get; set; }
+        [DataMember(Name = "id")]
+        public string Id { get; set; }
+        [DataMember(Name = "worth")]
+        public long Worth { get; set; }
     }
 }
