@@ -31,7 +31,18 @@ namespace Coflnet.Sky.BFCS.Services
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await sniper.Init();
+            logger.LogInformation("Init: ran sniper init");
+
+            _ = Task.Run(async () =>
+            {
+                logger.LogInformation("Init: loading external data");
+                await externalLoader.Load();
+                await Task.Delay(TimeSpan.FromHours(0.5), stoppingToken);
+                // load again in case the main instance didn't have all items at the time
+                await externalLoader.Load();
+            }).ConfigureAwait(false);
             await DoFullUpdate(stoppingToken);
+            logger.LogInformation("Init: done full update");
 
             var prod = redis?.GetSubscriber();
             sniper.FoundSnipe += (lp) =>
@@ -50,12 +61,8 @@ namespace Coflnet.Sky.BFCS.Services
 
             var updater = new SnipeUpdater(sniper);
             var stopping = stoppingToken;
-            _ = Task.Run(async () =>
-            {
-                Console.WriteLine("loading external");
-                await externalLoader.Load();
-            }).ConfigureAwait(false);
             StartBackgroundFullUpdates(stopping);
+            logger.LogInformation("Init: starting updates");
             new SingleBazaarUpdater(sniper).UpdateForEver(null);
             await updater.DoUpdates(0, stoppingToken).ConfigureAwait(false);
         }
