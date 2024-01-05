@@ -55,7 +55,7 @@ public class SniperSocket : MinecraftSocket
         };
         clientSocket.OnOpen += (s, ev) =>
         {
-            SendMessage("Welcome to Äkwav special test sniper, connecting to main instance");
+            SendMessage("Welcome to Coflnet special test sniper, connecting to main instance");
         };
         clientSocket.OnError += (s, e) =>
         {
