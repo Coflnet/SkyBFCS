@@ -229,7 +229,7 @@ public class SniperSocket : MinecraftSocket
             message,
             exception = exception?.ToString(),
             additionalLog
-        }))));
+        }).Truncate(10000))));
         return base.Error(exception, message, additionalLog);
     }
 
