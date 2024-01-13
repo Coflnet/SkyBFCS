@@ -89,9 +89,7 @@ public class SniperSocket : MinecraftSocket
                 HandleProxySettingsSync(deserialized);
                 break;
             case "filterData":
-                var state = JsonConvert.DeserializeObject<FilterStateService.FilterState>(deserialized.data);
-                GetService<FilterStateService>().State = state;
-                state.LastUpdate = DateTime.UtcNow;
+                UpdateFilterData(deserialized);
                 break;
             case "loggedIn":
                 var command = Response.Create("ProxyReqSync", 0);
@@ -117,6 +115,33 @@ public class SniperSocket : MinecraftSocket
                 break;
         }
         await Task.Delay(0);
+    }
+
+    private void UpdateFilterData(Response deserialized)
+    {
+        var state = JsonConvert.DeserializeObject<FilterStateService.FilterState>(deserialized.data);
+        var local = GetService<FilterStateService>().State;
+        local.CurrentMayor = state.CurrentMayor;
+        local.NextMayor = state.NextMayor;
+        local.PreviousMayor = state.PreviousMayor;
+        foreach (var item in state.ExistingTags)
+        {
+            local.ExistingTags.Add(item);
+        }
+        foreach (var day in state.IntroductionAge)
+        {
+            if (local.IntroductionAge.TryAdd(day.Key, day.Value))
+                continue;
+            foreach (var item in day.Value)
+            {
+                local.IntroductionAge[day.Key].Add(item);
+            }
+        }
+        foreach (var item in state.itemCategories)
+        {
+            local.itemCategories.AddOrUpdate(item.Key, item.Value, (k,v)=>v.Union(item.Value).ToHashSet());
+        }
+        state.LastUpdate = DateTime.UtcNow;
     }
 
     private void HandleProxySettingsSync(Response deserialized)
@@ -185,7 +210,7 @@ public class SniperSocket : MinecraftSocket
     {
         TryAsyncTimes(async () =>
         {
-            if (snipe.TargetPrice - snipe.Auction.StartingBid < Settings.MinProfit)
+            if (snipe?.Auction?.Context == null || Settings == null || snipe.TargetPrice - snipe.Auction.StartingBid < Settings.MinProfit)
                 return;
             if (snipe.Auction.Context.ContainsKey("cname") && !snipe.Auction.Context["cname"].EndsWith("-us"))
             {
