@@ -193,6 +193,16 @@ public class SniperSocket : MinecraftSocket
         }, "sending flip", 1);
     }
 
+    public override string Error(Exception exception, string message = null, string additionalLog = null)
+    {
+        clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", JsonConvert.SerializeObject(new {
+            message,
+            exception = exception?.ToString(),
+            additionalLog
+        }))));
+        return base.Error(exception, message, additionalLog);
+    }
+
     private bool IsReceived(string uuid)
     {
         if(uuid == null)
