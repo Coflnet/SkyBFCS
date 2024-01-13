@@ -76,6 +76,7 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<IFlipReceiveTracker, FlipReceiveTrackerMock>();
             services.AddSingleton<HypixelItemService>();
             services.AddSingleton<HttpClient>();
+            services.AddSingleton<SnipeUpdater>();
             services.AddCoflService();
         }
 

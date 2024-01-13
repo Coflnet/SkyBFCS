@@ -18,14 +18,16 @@ namespace Coflnet.Sky.BFCS.Services
         private ExternalDataLoader externalLoader;
         private FullUpdater fullUpdater;
         private ILogger<UpdaterService> logger;
+        private readonly SnipeUpdater updater;
 
-        public UpdaterService(SniperService sniper, IConnectionMultiplexer redis, ExternalDataLoader externalLoader, FullUpdater fullUpdater, ILogger<UpdaterService> logger)
+        public UpdaterService(SniperService sniper, IConnectionMultiplexer redis, ExternalDataLoader externalLoader, FullUpdater fullUpdater, ILogger<UpdaterService> logger, SnipeUpdater updater)
         {
             this.sniper = sniper;
             this.redis = redis;
             this.externalLoader = externalLoader;
             this.fullUpdater = fullUpdater;
             this.logger = logger;
+            this.updater = updater;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -59,7 +61,6 @@ namespace Coflnet.Sky.BFCS.Services
                 }).ConfigureAwait(false);
             };
 
-            var updater = new SnipeUpdater(sniper);
             var stopping = stoppingToken;
             StartBackgroundFullUpdates(stopping);
             logger.LogInformation("Init: starting updates");
