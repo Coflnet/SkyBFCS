@@ -88,6 +88,11 @@ public class SniperSocket : MinecraftSocket
             case "proxySync":
                 HandleProxySettingsSync(deserialized);
                 break;
+            case "filterData":
+                var state = JsonConvert.DeserializeObject<FilterStateService.FilterState>(deserialized.data);
+                GetService<FilterStateService>().State = state;
+                state.LastUpdate = DateTime.UtcNow;
+                break;
             case "loggedIn":
                 var command = Response.Create("ProxyReqSync", 0);
                 clientSocket.Send(JsonConvert.SerializeObject(command));
