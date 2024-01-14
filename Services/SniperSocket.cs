@@ -86,7 +86,7 @@ public class SniperSocket : MinecraftSocket
         switch (deserialized.type)
         {
             case "proxySync":
-                HandleProxySettingsSync(deserialized);
+                await HandleProxySettingsSync(deserialized);
                 break;
             case "filterData":
                 UpdateFilterData(deserialized);
@@ -139,12 +139,12 @@ public class SniperSocket : MinecraftSocket
         }
         foreach (var item in state.itemCategories)
         {
-            local.itemCategories.AddOrUpdate(item.Key, item.Value, (k,v)=>v.Union(item.Value).ToHashSet());
+            local.itemCategories.AddOrUpdate(item.Key, item.Value, (k, v) => v.Union(item.Value).ToHashSet());
         }
         state.LastUpdate = DateTime.UtcNow;
     }
 
-    private void HandleProxySettingsSync(Response deserialized)
+    private async Task HandleProxySettingsSync(Response deserialized)
     {
         var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
         Console.WriteLine(deserialized.data);
@@ -166,10 +166,21 @@ public class SniperSocket : MinecraftSocket
             if (data.Settings.AllowedFinders.HasFlag(LowPricedAuction.FinderType.USER))
                 DiHandler.GetService<SnipeUpdater>().NewAuction += UserFlip;
         }
-        FixFilter(data.Settings.BlackList);
-        FixFilter(data.Settings.WhiteList);
-        data.Settings.MatchesSettings(BlacklistCommand.GetTestFlip("test"));
-        this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(data.Settings);
+        var settings = data.Settings;
+        FixFilter(settings.BlackList);
+        FixFilter(settings.WhiteList);
+        var testFlip = BlacklistCommand.GetTestFlip("test");
+        try
+        {
+            settings.MatchesSettings(testFlip);
+
+        }
+        catch (System.Exception)
+        {
+            sessionLifesycle.CheckListValidity(testFlip, settings.BlackList);
+            sessionLifesycle.CheckListValidity(testFlip, settings.WhiteList, true);
+        }
+        this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(settings);
         this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
         sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay));
     }
@@ -225,7 +236,8 @@ public class SniperSocket : MinecraftSocket
 
     public override string Error(Exception exception, string message = null, string additionalLog = null)
     {
-        clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", JsonConvert.SerializeObject(new {
+        clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", JsonConvert.SerializeObject(new
+        {
             message,
             exception = exception?.ToString(),
             additionalLog
@@ -235,7 +247,7 @@ public class SniperSocket : MinecraftSocket
 
     private bool IsReceived(string uuid)
     {
-        if(uuid == null)
+        if (uuid == null)
             return false;
         if (flipUuidsSent.Contains(uuid))
             return true;
