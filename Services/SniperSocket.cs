@@ -325,7 +325,8 @@ public class StaticDelayHandler : IDelayHandler
 
     public async Task<DateTime> AwaitDelayForFlip(FlipInstance flipInstance)
     {
-        await Task.Delay(CurrentDelay / 2);
+        if (CurrentDelay > TimeSpan.Zero)
+            await Task.Delay(CurrentDelay / 2);
         return DateTime.UtcNow;
     }
 
@@ -337,6 +338,6 @@ public class StaticDelayHandler : IDelayHandler
     public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime)
     {
         // nothing todo, gets set by the socket
-        return Task.FromResult(new DelayHandler.Summary());
+        return Task.FromResult(new DelayHandler.Summary() { VerifiedMc = true, Penalty = CurrentDelay });
     }
 }
