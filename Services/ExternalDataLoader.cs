@@ -27,7 +27,8 @@ namespace Coflnet.Sky.BFCS.Services
             try
             {
                 logger.LogInformation("Loading external data");
-                sniper.State = SniperState.LadingLookup;
+                if (sniper.State < SniperState.Ready)
+                    sniper.State = SniperState.LadingLookup;
                 var ids = await api.ApiSniperLookupGetAsync();
                 logger.LogInformation("done with ids");
                 foreach (var id in ids)
@@ -57,7 +58,7 @@ namespace Coflnet.Sky.BFCS.Services
             }
             catch (System.Exception e)
             {
-                if(retryCount > 3)
+                if (retryCount > 3)
                     return;
                 logger.LogError(e, $"Error loading {id}\n{data}");
                 await Task.Delay(2000);
