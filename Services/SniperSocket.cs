@@ -166,14 +166,15 @@ public class SniperSocket : MinecraftSocket
             if (data.Settings.AllowedFinders.HasFlag(LowPricedAuction.FinderType.USER))
                 DiHandler.GetService<SnipeUpdater>().NewAuction += UserFlip;
         }
+        sessionLifesycle.FlipSettings?.Value?.CancelCompilation();
         var settings = data.Settings;
         FixFilter(settings.BlackList);
         FixFilter(settings.WhiteList);
         var testFlip = BlacklistCommand.GetTestFlip("test");
         try
         {
+            settings.CopyListMatchers(sessionLifesycle.FlipSettings);
             settings.MatchesSettings(testFlip);
-
         }
         catch (System.Exception)
         {
@@ -209,7 +210,7 @@ public class SniperSocket : MinecraftSocket
             // uppercase each keys first letter
             foreach (var item in dict.Keys.ToList())
             {
-                if(Lookup.Contains(item))
+                if (Lookup.Contains(item))
                 {
                     continue;
                 }
