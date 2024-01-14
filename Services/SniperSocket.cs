@@ -130,13 +130,13 @@ public class SniperSocket : MinecraftSocket
         }
         foreach (var day in state.IntroductionAge)
         {
-            if (local.IntroductionAge.TryAdd(day.Key, day.Value))
-                continue;
+            local.IntroductionAge.TryAdd(day.Key, new());
             foreach (var item in day.Value)
             {
                 local.IntroductionAge[day.Key].Add(item);
             }
         }
+        Console.WriteLine($"Added days {string.Join(", ", state.IntroductionAge.Keys)}");
         foreach (var item in state.itemCategories)
         {
             local.itemCategories.AddOrUpdate(item.Key, item.Value, (k, v) => v.Union(item.Value).ToHashSet());
