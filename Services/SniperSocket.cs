@@ -167,7 +167,10 @@ public class SniperSocket : MinecraftSocket
         this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
         var dl = sessionLifesycle.DelayHandler as StaticDelayHandler;
         if (dl == null)
+        {
             sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay));
+            sessionLifesycle.FlipProcessor = new FlipProcesser(this, new(), sessionLifesycle.DelayHandler);
+        }
         else
             dl.CurrentDelay = TimeSpan.FromMilliseconds(data.ApproxDelay);
 
