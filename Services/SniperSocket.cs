@@ -136,7 +136,6 @@ public class SniperSocket : MinecraftSocket
                 local.IntroductionAge[day.Key].Add(item);
             }
         }
-        Console.WriteLine($"Added days {string.Join(", ", state.IntroductionAge.Keys)}");
         foreach (var item in state.itemCategories)
         {
             local.itemCategories.AddOrUpdate(item.Key, item.Value, (k, v) => v.Union(item.Value).ToHashSet());
@@ -180,6 +179,7 @@ public class SniperSocket : MinecraftSocket
         {
             sessionLifesycle.CheckListValidity(testFlip, settings.BlackList);
             sessionLifesycle.CheckListValidity(testFlip, settings.WhiteList, true);
+            return;
         }
         this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(settings);
         this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
