@@ -77,6 +77,8 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<HypixelItemService>();
             services.AddSingleton<HttpClient>();
             services.AddSingleton<SnipeUpdater>();
+            services.AddSingleton<IIsSold, NeverIsSoldService>();
+            services.AddSingleton<ITutorialService, NothingTutorialService>();
             services.AddCoflService();
         }
 
