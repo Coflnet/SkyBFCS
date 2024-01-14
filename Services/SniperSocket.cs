@@ -199,6 +199,8 @@ public class SniperSocket : MinecraftSocket
 
     private static void FixFilter(List<ListEntry> list)
     {
+        var filterEngine = DiHandler.GetService<Filter.FilterEngine>();
+        var Lookup = filterEngine.AvailableFilters.ToLookup(a => a.Name);
         foreach (var elem in list)
         {
             var dict = elem.filter;
@@ -207,6 +209,10 @@ public class SniperSocket : MinecraftSocket
             // uppercase each keys first letter
             foreach (var item in dict.Keys.ToList())
             {
+                if(Lookup.Contains(item))
+                {
+                    continue;
+                }
                 var newKey = item[0].ToString().ToUpper() + item.Substring(1);
                 if (newKey != item)
                 {
