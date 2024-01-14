@@ -165,7 +165,12 @@ public class SniperSocket : MinecraftSocket
         }
         this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(settings);
         this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
-        sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay));
+        var dl = sessionLifesycle.DelayHandler as StaticDelayHandler;
+        if (dl == null)
+            sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay));
+        else
+            dl.CurrentDelay = TimeSpan.FromMilliseconds(data.ApproxDelay);
+
     }
 
     private void UserFlip(SaveAuction obj)
