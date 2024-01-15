@@ -46,11 +46,11 @@ namespace Coflnet.Sky.BFCS.Services
 
         private async Task LoadItemData(string id, int retryCount = 0)
         {
-            var data = (await api.ApiSniperLookupItemIdGetAsync(id, config["SNIPER_TRANSFER_TOKEN"])).Trim('"');
-            if (data == null)
-                return;
             try
             {
+                var data = (await api.ApiSniperLookupItemIdGetAsync(id, config["SNIPER_TRANSFER_TOKEN"])).Trim('"');
+                if (data == null)
+                    return;
                 var bytes = Convert.FromBase64String(data);
                 var elements = MessagePack.MessagePackSerializer.Deserialize<PriceLookup>(bytes);
                 sniper.AddLookupData(id, elements);
@@ -60,7 +60,7 @@ namespace Coflnet.Sky.BFCS.Services
             {
                 if (retryCount > 3)
                     return;
-                logger.LogError(e, $"Error loading {id}\n{data}");
+                logger.LogError(e, $"Error loading {id}");
                 await Task.Delay(2000);
                 await LoadItemData(id, retryCount + 1);
             }
