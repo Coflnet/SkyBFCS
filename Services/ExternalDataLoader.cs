@@ -31,14 +31,15 @@ namespace Coflnet.Sky.BFCS.Services
                     sniper.State = SniperState.LadingLookup;
                 var ids = await api.ApiSniperLookupGetAsync();
                 logger.LogInformation("done with ids");
-                foreach (var id in ids)
+                await Parallel.ForEachAsync(ids, new ParallelOptions() { MaxDegreeOfParallelism = 3 },
+                async (id, c) =>
                 {
                     await LoadItemData(id);
-                }
+                });
                 sniper.State = SniperState.Ready;
                 logger.LogInformation("done loading external data");
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 logger.LogError(e, "Error loading external data");
             }
@@ -56,12 +57,12 @@ namespace Coflnet.Sky.BFCS.Services
                 sniper.AddLookupData(id, elements);
                 logger.LogInformation("imported auction data for {0} total of {count}", id, elements.Lookup.Count);
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 if (retryCount > 3)
                     return;
                 logger.LogError(e, $"Error loading {id}");
-                await Task.Delay(2000);
+                await Task.Delay((retryCount + 1) * 2000);
                 await LoadItemData(id, retryCount + 1);
             }
         }
