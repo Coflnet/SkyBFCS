@@ -220,9 +220,9 @@ public class SniperSocket : MinecraftSocket
         {
             if (snipe?.Auction?.Context == null || Settings == null || snipe.TargetPrice - snipe.Auction.StartingBid < Settings.MinProfit)
                 return;
-            if (snipe.Auction.Context.ContainsKey("cname") && !snipe.Auction.Context["cname"].EndsWith("-us"))
+            if (snipe.Auction.Context.TryGetValue("cname", out string name) && !name.EndsWith("-us"))
             {
-                snipe.Auction.Context["cname"] += McColorCodes.GRAY + "-us";
+                snipe.Auction.Context["cname"] = name + McColorCodes.GRAY + "-us";
             }
             if (IsReceived(snipe.Auction.Uuid))
                 return; // already sent
