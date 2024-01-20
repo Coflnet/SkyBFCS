@@ -105,14 +105,17 @@ public class SniperSocket : MinecraftSocket
                     return; // already sent
                 Send(ev.Data);
                 break;
-            default:
-                // forward
+            case "ping":
+            case "countdown":
                 Send(ev.Data);
                 if (this.sessionLifesycle != null)
                 {
                     this.sessionLifesycle.HouseKeeping();
-                    Console.WriteLine($"Housekeeping on " + deserialized.type);
                 }
+                break;
+            default:
+                // forward
+                Send(ev.Data);
                 break;
         }
         await Task.Delay(0);
@@ -129,7 +132,6 @@ public class SniperSocket : MinecraftSocket
     private async Task HandleProxySettingsSync(Response deserialized)
     {
         var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
-        Console.WriteLine(deserialized.data);
         if (data.AccountInfo.Tier < AccountTier.PREMIUM_PLUS)
         {
             Dialog(db => db.Break.MsgLine("Sorry, your account does not have premium plus, redirecting back", null, "Prem+ is required for this service")
