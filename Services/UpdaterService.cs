@@ -96,11 +96,11 @@ namespace Coflnet.Sky.BFCS.Services
                 {
                     try
                     {
-                        await Task.Delay(TimeSpan.FromMinutes(2), stopping);
+                        await Task.Delay(TimeSpan.FromMinutes(1), stopping);
                         Console.WriteLine("doing full update");
                         await fullUpdater.Update(true);
                         await Task.Delay(TimeSpan.FromMinutes(1), stopping);
-                        RefreshAllMedians();
+                        await RefreshAllMedians();
                     }
                     catch (System.Exception e)
                     {
@@ -110,7 +110,7 @@ namespace Coflnet.Sky.BFCS.Services
             }).ConfigureAwait(false);
         }
 
-        private void RefreshAllMedians()
+        private async Task RefreshAllMedians()
         {
             foreach (var item in sniper.Lookups)
             {
@@ -119,6 +119,8 @@ namespace Coflnet.Sky.BFCS.Services
                     // make sure all medians are up to date
                     sniper.UpdateMedian(bucket.Value, (item.Key, bucket.Key));
                 }
+                if(item.Value.Lookup.Count > 3)
+                    await Task.Delay(10);
             }
         }
     }
