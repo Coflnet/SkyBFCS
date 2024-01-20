@@ -111,6 +111,7 @@ public class SniperSocket : MinecraftSocket
                 if (this.sessionLifesycle != null)
                 {
                     this.sessionLifesycle.HouseKeeping();
+                    Console.WriteLine($"Housekeeping on " + deserialized.type);
                 }
                 break;
         }
