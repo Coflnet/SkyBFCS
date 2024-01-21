@@ -17,6 +17,7 @@ public class SniperSocket : MinecraftSocket
     private WebSocket clientSocket;
     public override string CurrentRegion => "us";
     private static readonly ClassNameDictonary<McCommand> TryLocalFirst;
+    private static readonly ClassNameDictonary<McCommand> ExecuteBoth;
     private ConcurrentQueue<string> flipUuidsSent = new ConcurrentQueue<string>();
 
     static SniperSocket()
@@ -25,6 +26,9 @@ public class SniperSocket : MinecraftSocket
         TryLocalFirst.Add<DialogCommand>();
         TryLocalFirst.Add<TimeCommand>();
         TryLocalFirst.Add<PingCommand>();
+
+        ExecuteBoth = new ClassNameDictonary<McCommand>();
+        ExecuteBoth.Add<UploadInventory>();
     }
     public SniperSocket()
     {
@@ -283,10 +287,21 @@ public class SniperSocket : MinecraftSocket
                 await Commands[deserialized.type.ToLower()].Execute(this, deserialized.data);
                 return;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 // fall back to sending to server
+            }
+        }
+        if(ExecuteBoth.ContainsKey(deserialized.type.ToLower()))
+        {
+            try
+            {
+                await Commands[deserialized.type.ToLower()].Execute(this, deserialized.data);
+            }
+            catch (Exception ex)
+            {
+               Error(ex, "Error executing command", deserialized.data);
             }
         }
         switch (deserialized.type)
