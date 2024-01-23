@@ -20,6 +20,7 @@ namespace Coflnet.Sky.BFCS.Services
         // protected override string ApiBaseUrl => "https://localhost:7013";
         Channel<Element> newAuctions;
         public event Action<SaveAuction> NewAuction;
+        public event Action UpdateProcessed;
 
         public SnipeUpdater(SniperService sniper) : base(Updater.Updater.activitySource, null)
         {
@@ -38,6 +39,7 @@ namespace Coflnet.Sky.BFCS.Services
                     try
                     {
                         var next = await newAuctions.Reader.ReadAsync().ConfigureAwait(false);
+                        var isLast = newAuctions.Reader.Count == 0;
                         if (!next.auction.BuyItNow)
                             continue;
                         var a = Updater.Updater.ConvertAuction(next.auction, next.lastUpdated);
@@ -45,6 +47,11 @@ namespace Coflnet.Sky.BFCS.Services
                         a.Context["utry"] = next.tryCount.ToString();
                         sniper.TestNewAuction(a);
                         NewAuction?.Invoke(a);
+                        if (isLast)
+                        {
+                            Console.WriteLine("Info: No more auctions");
+                            UpdateProcessed?.Invoke();
+                        }
                     }
                     catch (System.Exception e)
                     {

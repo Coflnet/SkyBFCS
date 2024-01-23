@@ -7,6 +7,7 @@ using System.Net.Http;
 using StackExchange.Redis;
 using Coflnet.Sky.Updater;
 using Microsoft.Extensions.Logging;
+using System.Threading.Channels;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -91,16 +92,27 @@ namespace Coflnet.Sky.BFCS.Services
         {
             _ = Task.Run(async () =>
             {
-                Console.WriteLine("starting updater");
+                var waitChannel = Channel.CreateBounded<bool>(1);
+                updater.UpdateProcessed += () =>
+                {
+                    waitChannel.Writer.TryWrite(true);
+                };
+                logger.LogInformation("starting updater");
                 while (!stopping.IsCancellationRequested)
                 {
                     try
                     {
-                        await Task.Delay(TimeSpan.FromMinutes(1), stopping);
-                        Console.WriteLine("doing full update");
+                        // wait for fast update to be done
+                        await waitChannel.Reader.ReadAsync(stopping);
+                        await Task.Delay(TimeSpan.FromSeconds(1), stopping);
+
+                        logger.LogInformation("doing full update");
                         await fullUpdater.Update(true);
-                        await Task.Delay(TimeSpan.FromMinutes(1), stopping);
+                        // wait for event updater.UpdateProcessed
+                        await waitChannel.Reader.ReadAsync(stopping);
+                        await Task.Delay(TimeSpan.FromSeconds(1), stopping);
                         await RefreshAllMedians();
+                        await Task.Delay(TimeSpan.FromMinutes(1), stopping);
                     }
                     catch (System.Exception e)
                     {
@@ -119,7 +131,7 @@ namespace Coflnet.Sky.BFCS.Services
                     // make sure all medians are up to date
                     sniper.UpdateMedian(bucket.Value, (item.Key, bucket.Key));
                 }
-                if(item.Value.Lookup.Count > 3)
+                if (item.Value.Lookup.Count > 3)
                     await Task.Delay(10);
             }
         }
