@@ -108,6 +108,7 @@ namespace Coflnet.Sky.BFCS.Services
 
                         logger.LogInformation("doing full update");
                         await fullUpdater.Update(true);
+                        await Task.Delay(TimeSpan.FromMinutes(1), stopping);
                         // wait for event updater.UpdateProcessed
                         await waitChannel.Reader.ReadAsync(stopping);
                         await Task.Delay(TimeSpan.FromSeconds(1), stopping);
