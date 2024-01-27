@@ -97,7 +97,7 @@ public class SniperSocket : MinecraftSocket
                 break;
             case "loggedIn":
                 var command = Response.Create("ProxyReqSync", 0);
-                clientSocket.Send(JsonConvert.SerializeObject(command));
+                SendToServer(command);
                 SendMessage("Special test sniper connected to main instance, requesting account info");
                 break;
             case "flip":
@@ -125,6 +125,11 @@ public class SniperSocket : MinecraftSocket
         await Task.Delay(0);
     }
 
+    private void SendToServer(Response command)
+    {
+        clientSocket.Send(JsonConvert.SerializeObject(command));
+    }
+
     private async Task UpdateFilterData(Response deserialized)
     {
         var state = JsonConvert.DeserializeObject<FilterStateService.FilterState>(deserialized.data);
@@ -140,7 +145,8 @@ public class SniperSocket : MinecraftSocket
         {
             Dialog(db => db.Break.MsgLine("Sorry, your account does not have premium plus, redirecting back", null, "Prem+ is required for this service")
                 .CoflCommand<PurchaseCommand>($"{McColorCodes.GREEN}Click here to purchase Prem+", "prem+", "Start purchasing Prem+"));
-            ExecuteCommand("/cofl switchregion eu");
+            var command = Response.Create("switchregion", "eu");
+            SendToServer(command);
             ExecuteCommand("/cofl start");
             Close();
             return;
@@ -293,7 +299,7 @@ public class SniperSocket : MinecraftSocket
                 // fall back to sending to server
             }
         }
-        if(ExecuteBoth.ContainsKey(deserialized.type.ToLower()))
+        if (ExecuteBoth.ContainsKey(deserialized.type.ToLower()))
         {
             try
             {
@@ -301,7 +307,7 @@ public class SniperSocket : MinecraftSocket
             }
             catch (Exception ex)
             {
-               Error(ex, "Error executing command", deserialized.data);
+                Error(ex, "Error executing command", deserialized.data);
             }
         }
         switch (deserialized.type)
