@@ -1,4 +1,5 @@
 using System.Threading;
+using System.Threading.Tasks;
 using Coflnet.Sky.BFCS.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -14,6 +15,11 @@ namespace Coflnet.Sky.BFCS
             server.KeepClean = false;
             server.AddWebSocketService<SniperSocket>("/socket");
             server.AddWebSocketService<SniperSocket>("/modsocket");
+            server.OnGet += (arg,e) =>
+            {
+                e.Response.StatusCode = 201;
+                return Task.CompletedTask;
+            };
             server.Start();
             CreateHostBuilder(args).Build().Run();
         }
