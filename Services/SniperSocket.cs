@@ -138,7 +138,7 @@ public class SniperSocket : MinecraftSocket
 
 
 
-    private async Task HandleProxySettingsSync(Response deserialized)
+    private Task HandleProxySettingsSync(Response deserialized)
     {
         var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
         if (data.AccountInfo.Tier < AccountTier.PREMIUM_PLUS)
@@ -149,7 +149,7 @@ public class SniperSocket : MinecraftSocket
             SendToServer(command);
             ExecuteCommand("/cofl start");
             Close();
-            return;
+            return Task.CompletedTask;
         }
         this.SessionInfo = SelfUpdatingValue<SessionInfo>.CreateNoUpdate(data.SessionInfo);
         if (this.sessionLifesycle == null)
@@ -174,7 +174,7 @@ public class SniperSocket : MinecraftSocket
         {
             sessionLifesycle.CheckListValidity(testFlip, settings.BlackList);
             sessionLifesycle.CheckListValidity(testFlip, settings.WhiteList, true);
-            return;
+            return Task.CompletedTask;
         }
         this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(settings);
         this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
@@ -186,7 +186,7 @@ public class SniperSocket : MinecraftSocket
         }
         else
             dl.CurrentDelay = TimeSpan.FromMilliseconds(data.ApproxDelay);
-
+        return Task.CompletedTask;
     }
 
     private void UserFlip(SaveAuction obj)
