@@ -20,10 +20,10 @@ public class StaticDelayHandler : IDelayHandler
     public async Task<DateTime> AwaitDelayForFlip(FlipInstance flipInstance)
     {
         // simple calculation
-        if (IsLikelyBot(flipInstance))
+        if (IsLikelyBot(flipInstance) && Random.Shared.NextDouble() < 0.5)
             return DateTime.UtcNow;
         if (CurrentDelay > TimeSpan.Zero)
-            await Task.Delay(CurrentDelay / 2);
+            await Task.Delay(CurrentDelay);
         return DateTime.UtcNow;
     }
 
