@@ -8,6 +8,7 @@ using StackExchange.Redis;
 using Coflnet.Sky.Updater;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
+using Prometheus;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -20,6 +21,8 @@ namespace Coflnet.Sky.BFCS.Services
         private FullUpdater fullUpdater;
         private ILogger<UpdaterService> logger;
         private readonly SnipeUpdater updater;
+
+        private readonly Gauge firstFlipPublished = Metrics.CreateGauge("sky_update_first_flip", "Time till first flip was sent to redis");
 
         public UpdaterService(SniperService sniper, IConnectionMultiplexer redis, ExternalDataLoader externalLoader, FullUpdater fullUpdater, ILogger<UpdaterService> logger, SnipeUpdater updater)
         {
@@ -48,11 +51,18 @@ namespace Coflnet.Sky.BFCS.Services
             logger.LogInformation("Init: done full update");
 
             var prod = redis?.GetSubscriber();
+            var firstPublished = DateTime.MinValue;
             sniper.FoundSnipe += (lp) =>
             {
                 if (lp.TargetPrice < 2_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.08 || lp.DailyVolume < 0.2 || lp.Finder == Core.LowPricedAuction.FinderType.STONKS)
                     return;
                 prod?.Publish(new RedisChannel("snipes", RedisChannel.PatternMode.Literal), MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
+                if(firstPublished < lp.Auction.FindTime - TimeSpan.FromSeconds(20))
+                {
+                    var apiUpdateTime = lp.Auction.FindTime;
+                    firstPublished = DateTime.UtcNow; // prevent multiple updates in same minute
+                    firstFlipPublished.Set(DateTime.UtcNow.Subtract(apiUpdateTime).TotalSeconds);
+                }
                 Console.WriteLine($"found {lp.Finder} :O {lp.Auction.Uuid} {lp.Auction.ItemName}");
                 var timestamp = (long)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
                 Task.Run(async () =>
