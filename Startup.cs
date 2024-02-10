@@ -73,7 +73,6 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<ISniperApi, SniperApi>(c => new SniperApi(Configuration["SNIPER_BASE_URL"]));
             services.AddSingleton<ExternalDataLoader>();
             services.AddSingleton<IIsSold, IsSoldMock>();
-            services.AddSingleton<IFlipReceiveTracker, FlipReceiveTrackerMock>();
             services.AddSingleton<HypixelItemService>();
             services.AddSingleton<HttpClient>();
             services.AddSingleton<SnipeUpdater>();

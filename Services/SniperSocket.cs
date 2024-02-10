@@ -10,6 +10,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using Coflnet.Sky.BFCS.Models;
+using Coflnet.Sky.Commands;
+using Microsoft.Extensions.DependencyInjection;
+using Coflnet.Sky.ModCommands.Services;
 
 namespace Coflnet.Sky.BFCS.Services;
 public class SniperSocket : MinecraftSocket
@@ -19,7 +22,8 @@ public class SniperSocket : MinecraftSocket
     private static readonly ClassNameDictonary<McCommand> TryLocalFirst;
     private static readonly ClassNameDictonary<McCommand> ExecuteBoth;
     private ConcurrentQueue<string> flipUuidsSent = new ConcurrentQueue<string>();
-
+   // private static ConcurrentDictionary<Type, Func<SniperSocket, object>> serviceConstructors = new ConcurrentDictionary<Type, Func<SniperSocket, object>>();
+    private ServiceProvider services ;
     static SniperSocket()
     {
         TryLocalFirst = new ClassNameDictonary<McCommand>();
@@ -29,9 +33,16 @@ public class SniperSocket : MinecraftSocket
 
         ExecuteBoth = new ClassNameDictonary<McCommand>();
         ExecuteBoth.Add<UploadInventory>();
+
     }
     public SniperSocket()
     {
+        ServiceCollection services = new ServiceCollection();
+        services.AddSingleton<IMinecraftSocket>(this);
+        services.AddSingleton(this);
+        services.AddSingleton<IFlipReceiveTracker>(new FlipReceiveTrackerClient(this));
+        services.AddSingleton<IPriceStorageService>(di => di.GetService<FlipReceiveTrackerClient>());
+        this.services = services.BuildServiceProvider();
     }
 
     protected override void OnOpen()
@@ -125,7 +136,7 @@ public class SniperSocket : MinecraftSocket
         await Task.Delay(0);
     }
 
-    private void SendToServer(Response command)
+    public void SendToServer(Response command)
     {
         clientSocket.Send(JsonConvert.SerializeObject(command));
     }
@@ -136,7 +147,15 @@ public class SniperSocket : MinecraftSocket
         await GetService<FilterStateService>().UpdateState(state);
     }
 
-
+    public override T GetService<T>()
+    {
+        if(services.GetService<T>() != null)
+        {
+            // override the service
+            return services.GetService<T>();
+        }
+        return base.GetService<T>();
+    }
 
     private Task HandleProxySettingsSync(Response deserialized)
     {
@@ -156,9 +175,9 @@ public class SniperSocket : MinecraftSocket
         {
             this.sessionLifesycle = new ModSessionLifesycle(this);
             SendMessage("received account info, ready to speed up flips");
-            DiHandler.GetService<SniperService>().FoundSnipe += SendSnipe;
+            GetService<SniperService>().FoundSnipe += SendSnipe;
             if (data.Settings.AllowedFinders.HasFlag(LowPricedAuction.FinderType.USER))
-                DiHandler.GetService<SnipeUpdater>().NewAuction += UserFlip;
+                GetService<SnipeUpdater>().NewAuction += UserFlip;
         }
         sessionLifesycle.FlipSettings?.Value?.CancelCompilation();
         var settings = data.Settings;
