@@ -9,12 +9,14 @@ namespace Coflnet.Sky.BFCS.Services;
 public class StaticDelayHandler : IDelayHandler
 {
     public TimeSpan CurrentDelay { get; set; }
+    private readonly SessionInfo sessionInfo;
 
     public event Action<TimeSpan> OnDelayChange;
 
-    public StaticDelayHandler(TimeSpan currentDelay)
+    public StaticDelayHandler(TimeSpan currentDelay, SessionInfo sessionInfo)
     {
         CurrentDelay = currentDelay;
+        this.sessionInfo = sessionInfo;
     }
 
     public async Task<DateTime> AwaitDelayForFlip(FlipInstance flipInstance)
@@ -24,6 +26,8 @@ public class StaticDelayHandler : IDelayHandler
             return DateTime.UtcNow;
         if (CurrentDelay > TimeSpan.Zero)
             await Task.Delay(CurrentDelay);
+        if (sessionInfo.IsMacroBot && flipInstance.Profit > 1_000_000)
+            await Task.Delay(TimeSpan.FromMicroseconds(flipInstance.Profit / 20000 * 1.1)).ConfigureAwait(false);
         return DateTime.UtcNow;
     }
 

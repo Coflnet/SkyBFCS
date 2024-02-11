@@ -6,7 +6,7 @@ namespace Coflnet.Sky.BFCS.Services;
 
 public class StaticDelayHandlerTest
 {
-    StaticDelayHandler staticDelayHandler = new StaticDelayHandler(TimeSpan.FromSeconds(5));
+    StaticDelayHandler staticDelayHandler = new StaticDelayHandler(TimeSpan.FromSeconds(5), new());
 
     [TestCase(1_000_000, 11_000_000, 10)]
     [TestCase(1_000_000, 110_000_000, 1)]
