@@ -288,7 +288,9 @@ public class SniperSocket : MinecraftSocket
 
     protected override void OnClose(CloseEventArgs e)
     {
-        DiHandler.GetService<SniperService>().FoundSnipe -= SendSnipe;
+        var sniper = DiHandler.GetService<SniperService>();
+        sniper.FoundSnipe -= SendSnipe;
+        GetService<SnipeUpdater>().NewAuction -= UserFlip;
         clientSocket.Close();
         Console.WriteLine("error " + e.Reason);
         base.OnClose(e);
