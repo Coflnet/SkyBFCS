@@ -200,7 +200,7 @@ public class SniperSocket : MinecraftSocket
         var dl = sessionLifesycle.DelayHandler as StaticDelayHandler;
         if (dl == null)
         {
-            sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay));
+            sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay), this.SessionInfo);
             sessionLifesycle.FlipProcessor = new FlipProcesser(this, new(), sessionLifesycle.DelayHandler);
         }
         else
