@@ -22,6 +22,8 @@ public class StaticDelayHandler : IDelayHandler
     public async Task<DateTime> AwaitDelayForFlip(FlipInstance flipInstance)
     {
         // simple calculation
+        if(flipInstance.Profit > 200_000_000)
+            return DateTime.UtcNow;
         if (IsLikelyBot(flipInstance) && Random.Shared.NextDouble() < 0.5)
             return DateTime.UtcNow;
         if (CurrentDelay > TimeSpan.Zero)
