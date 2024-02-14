@@ -300,7 +300,7 @@ public class SniperSocket : MinecraftSocket
     {
         TryAsyncTimes(async () =>
         {
-            await this.HandleCommand(e);
+            await HandleCommand(e);
         }, "handling command", 1);
     }
 
