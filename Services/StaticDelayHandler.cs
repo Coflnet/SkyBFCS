@@ -22,7 +22,7 @@ public class StaticDelayHandler : IDelayHandler
     public async Task<DateTime> AwaitDelayForFlip(FlipInstance flipInstance)
     {
         // simple calculation
-        if(flipInstance.Profit > 200_000_000)
+        if(flipInstance.Profit > 100_000_000)
             return DateTime.UtcNow;
         if (IsLikelyBot(flipInstance) && Random.Shared.NextDouble() < 0.5)
             return DateTime.UtcNow;
@@ -35,7 +35,7 @@ public class StaticDelayHandler : IDelayHandler
 
     public bool IsLikelyBot(FlipInstance flipInstance)
     {
-        return flipInstance.ProfitPercentage > 500 || flipInstance.Profit > 100_000_000 / Math.Min(flipInstance.Volume, 10);
+        return flipInstance.ProfitPercentage > 500 || flipInstance.Profit > 50_000_000 / Math.Min(flipInstance.Volume, 10);
     }
 
     public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime)
