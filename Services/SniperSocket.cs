@@ -21,9 +21,10 @@ public class SniperSocket : MinecraftSocket
     public override string CurrentRegion => "us";
     private static readonly ClassNameDictonary<McCommand> TryLocalFirst;
     private static readonly ClassNameDictonary<McCommand> ExecuteBoth;
+    private bool WindingDown = false;
     private ConcurrentQueue<string> flipUuidsSent = new ConcurrentQueue<string>();
-   // private static ConcurrentDictionary<Type, Func<SniperSocket, object>> serviceConstructors = new ConcurrentDictionary<Type, Func<SniperSocket, object>>();
-    private ServiceProvider services ;
+    // private static ConcurrentDictionary<Type, Func<SniperSocket, object>> serviceConstructors = new ConcurrentDictionary<Type, Func<SniperSocket, object>>();
+    private ServiceProvider services;
     static SniperSocket()
     {
         TryLocalFirst = new ClassNameDictonary<McCommand>();
@@ -78,7 +79,7 @@ public class SniperSocket : MinecraftSocket
         };
         clientSocket.OnClose += (s, e) =>
         {
-            if (ReadyState == WebSocketState.Open)
+            if (ReadyState == WebSocketState.Open && !WindingDown)
             {
                 ConnectClient();
                 Console.WriteLine("reconnecting ");
@@ -128,6 +129,11 @@ public class SniperSocket : MinecraftSocket
                     this.sessionLifesycle.HouseKeeping();
                 }
                 break;
+            case "stop":
+                WindingDown = true;
+                clientSocket.Close();
+                Close();
+                break;
             default:
                 // forward
                 Send(ev.Data);
@@ -149,7 +155,7 @@ public class SniperSocket : MinecraftSocket
 
     public override T GetService<T>()
     {
-        if(services.GetService<T>() != null)
+        if (services.GetService<T>() != null)
         {
             // override the service
             return services.GetService<T>();
