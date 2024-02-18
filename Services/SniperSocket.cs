@@ -42,7 +42,13 @@ public class SniperSocket : MinecraftSocket
         services.AddSingleton<IMinecraftSocket>(this);
         services.AddSingleton(this);
         services.AddSingleton<IFlipReceiveTracker>(new FlipReceiveTrackerClient(this));
-        services.AddSingleton<IPriceStorageService>(di => di.GetService<FlipReceiveTrackerClient>());
+        services.AddSingleton<IPriceStorageService>(di => di.GetService<IFlipReceiveTracker>() as IPriceStorageService ?? throw new Exception("No IPriceStorageService"));
+        // all services:
+        Console.WriteLine("added services");
+        foreach (var service in services)
+        {
+            Console.WriteLine(service.ServiceType);
+        }
         this.services = services.BuildServiceProvider();
     }
 
@@ -153,12 +159,12 @@ public class SniperSocket : MinecraftSocket
         await GetService<FilterStateService>().UpdateState(state);
     }
 
-    public override T GetService<T>()
+    public override T GetService<T>() 
     {
-        if (services.GetService<T>() != null)
+        var localService = services.GetService<T>();
+        if (localService != null)
         {
-            // override the service
-            return services.GetService<T>();
+            return localService;
         }
         return base.GetService<T>();
     }
