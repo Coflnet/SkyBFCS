@@ -17,7 +17,7 @@ namespace Coflnet.Sky.BFCS
             server.AddWebSocketService<SniperSocket>("/modsocket");
             server.OnGet += (arg,e) =>
             {
-                e.Response.StatusCode = 201;
+                e.Response.StatusCode = 204;
                 return Task.CompletedTask;
             };
             server.Start();
