@@ -36,6 +36,7 @@ namespace Coflnet.Sky.BFCS.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            new SingleBazaarUpdater(sniper).UpdateForEver(null);
             await sniper.Init();
             logger.LogInformation("Init: ran sniper init");
 
@@ -75,7 +76,6 @@ namespace Coflnet.Sky.BFCS.Services
             var stopping = stoppingToken;
             StartBackgroundFullUpdates(stopping);
             logger.LogInformation("Init: starting updates");
-            new SingleBazaarUpdater(sniper).UpdateForEver(null);
             await updater.DoUpdates(0, stoppingToken).ConfigureAwait(false);
         }
 
@@ -140,7 +140,7 @@ namespace Coflnet.Sky.BFCS.Services
                 foreach (var bucket in item.Value.Lookup)
                 {
                     // make sure all medians are up to date
-                    sniper.UpdateMedian(bucket.Value, (item.Key, bucket.Key));
+                    sniper.UpdateMedian(bucket.Value, (item.Key, sniper.GetBreakdownKey(bucket.Key, item.Key)));
                 }
                 if (item.Value.Lookup.Count > 3)
                     await Task.Delay(10);
