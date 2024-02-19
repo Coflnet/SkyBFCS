@@ -159,7 +159,7 @@ public class SniperSocket : MinecraftSocket
         await GetService<FilterStateService>().UpdateState(state);
     }
 
-    public override T GetService<T>() 
+    public override T GetService<T>()
     {
         var localService = services.GetService<T>();
         if (localService != null)
@@ -213,7 +213,8 @@ public class SniperSocket : MinecraftSocket
         if (dl == null)
         {
             sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay), this.SessionInfo);
-            sessionLifesycle.FlipProcessor = new FlipProcesser(this, new(), sessionLifesycle.DelayHandler);
+            var extended = new ExtendedSpamController(f => IsReceived(f.Uuid));
+            sessionLifesycle.FlipProcessor = new FlipProcesser(this, extended, sessionLifesycle.DelayHandler);
         }
         else
             dl.CurrentDelay = TimeSpan.FromMilliseconds(data.ApproxDelay);
@@ -356,5 +357,23 @@ public class SniperSocket : MinecraftSocket
                 clientSocket.Send(e.Data);
                 break;
         }
+    }
+}
+
+public class ExtendedSpamController : SpamController
+{
+    private Func<SaveAuction, bool> shouldBlock;
+    public ExtendedSpamController(Func<SaveAuction, bool> shouldBlock)
+    {
+        this.shouldBlock = shouldBlock;
+    }
+
+    public override bool ShouldBeSent(FlipInstance flip)
+    {
+        if (shouldBlock(flip.Auction))
+        {
+            return false;
+        }
+        return base.ShouldBeSent(flip);
     }
 }
