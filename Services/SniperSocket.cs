@@ -38,6 +38,7 @@ public class SniperSocket : MinecraftSocket
     }
     public SniperSocket()
     {
+        ConSpan = this.CreateActivity("SniperSocket");
         ServiceCollection services = new ServiceCollection();
         services.AddSingleton<IMinecraftSocket>(this);
         services.AddSingleton(this);
@@ -99,7 +100,7 @@ public class SniperSocket : MinecraftSocket
 
     private async Task HandleServerCommand(MessageEventArgs ev)
     {
-        using var activity = CreateActivity("ServerCommand");
+        using var activity = CreateActivity("ServerCommand", ConSpan);
         if (ReadyState == WebSocketState.Closed)
         {
             clientSocket.Close();
@@ -335,7 +336,7 @@ public class SniperSocket : MinecraftSocket
 
     private async Task HandleCommand(MessageEventArgs e)
     {
-        using var activity = CreateActivity("ClientCommand");
+        using var activity = CreateActivity("ClientCommand", ConSpan);
         var deserialized = JsonConvert.DeserializeObject<Response>(e.Data);
         if (TryLocalFirst.ContainsKey(deserialized.type.ToLower()))
         {
