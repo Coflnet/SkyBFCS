@@ -99,12 +99,15 @@ public class SniperSocket : MinecraftSocket
 
     private async Task HandleServerCommand(MessageEventArgs ev)
     {
+        using var activity = CreateActivity("ServerCommand");
         if (ReadyState == WebSocketState.Closed)
         {
             clientSocket.Close();
             return;
         }
         var deserialized = JsonConvert.DeserializeObject<Response>(ev.Data);
+        activity.AddTag("type", deserialized.type);
+        activity.Log(deserialized.data);
         switch (deserialized.type)
         {
             case "proxySync":
@@ -124,7 +127,20 @@ public class SniperSocket : MinecraftSocket
                     Close();
                 var snipe = JsonConvert.DeserializeObject<ForwardedFlip>(deserialized.data);
                 if (IsReceived(snipe.Id))
+                {
+                    TopBlocked.Enqueue(new BlockedElement()
+                    {
+                        Flip = new LowPricedAuction()
+                        {
+                            Auction = new SaveAuction()
+                            {
+                                Uuid = snipe.Id
+                            }
+                        },
+                        Reason = "Already sent"
+                    });
                     return; // already sent
+                }
                 Send(ev.Data);
                 break;
             case "ping":
@@ -319,6 +335,7 @@ public class SniperSocket : MinecraftSocket
 
     private async Task HandleCommand(MessageEventArgs e)
     {
+        using var activity = CreateActivity("ClientCommand");
         var deserialized = JsonConvert.DeserializeObject<Response>(e.Data);
         if (TryLocalFirst.ContainsKey(deserialized.type.ToLower()))
         {
@@ -352,6 +369,11 @@ public class SniperSocket : MinecraftSocket
             case "report":
                 clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"Sent {JsonConvert.SerializeObject(LastSent)}")));
                 clientSocket.Send(e.Data);
+                var traceId = activity?.Context.TraceId;
+                clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"local report id {traceId}")));
+                await Task.Delay(1000);
+                clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"local report id {traceId}")));
+                Dialog(db=>db.MsgLine($"Us error id: {traceId}"));
                 break;
             default:
                 clientSocket.Send(e.Data);
