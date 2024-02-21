@@ -140,9 +140,11 @@ public class SniperSocket : MinecraftSocket
                         },
                         Reason = "Already sent"
                     });
+                    activity.Log("Already sent");
                     return; // already sent
                 }
                 Send(ev.Data);
+                activity.Log("Sent flip");
                 break;
             case "ping":
             case "countdown":
@@ -286,8 +288,6 @@ public class SniperSocket : MinecraftSocket
             {
                 snipe.Auction.Context["cname"] = name + McColorCodes.GRAY + "-us";
             }
-            if (IsReceived(snipe.Auction.Uuid))
-                return; // already sent
             if (await this.SendFlip(snipe))
                 Console.WriteLine("sending failed :(");
         }, "sending flip", 1);
@@ -374,7 +374,7 @@ public class SniperSocket : MinecraftSocket
                 clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"local report id {traceId}")));
                 await Task.Delay(1000);
                 clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"local report id {traceId}")));
-                Dialog(db=>db.MsgLine($"Us error id: {traceId}"));
+                Dialog(db => db.MsgLine($"Us error id: {traceId}"));
                 break;
             default:
                 clientSocket.Send(e.Data);
