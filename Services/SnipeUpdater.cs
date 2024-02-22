@@ -21,6 +21,7 @@ namespace Coflnet.Sky.BFCS.Services
         Channel<Element> newAuctions;
         public event Action<SaveAuction> NewAuction;
         public event Action UpdateProcessed;
+        private int coreCount;
 
         public SnipeUpdater(SniperService sniper) : base(Updater.Updater.activitySource, null)
         {
@@ -28,6 +29,9 @@ namespace Coflnet.Sky.BFCS.Services
             newAuctions = Channel.CreateUnbounded<Element>();
             SpawnWorker(sniper);
             SpawnWorker(sniper);
+            // get the number of cores
+            coreCount = Environment.ProcessorCount;
+            Console.WriteLine("Info: Using " + coreCount + " processors");
         }
 
         private void SpawnWorker(SniperService sniper)
@@ -64,10 +68,16 @@ namespace Coflnet.Sky.BFCS.Services
         protected override async Task<DateTime> DoOneUpdate(DateTime lastUpdate, IProducer<string, SaveAuction> p, int page, Activity siteSpan)
         {
             var pageToken = new CancellationTokenSource(20000);
-            var result = await Task.WhenAll(
-                GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 4),
-                //GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 2),
-                GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 0));
+            var queries = new List<Task<(DateTime, int)>> { GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 0) };
+            if (coreCount > 1)
+            {
+                queries.Add(GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 4));
+            }
+            if (coreCount > 3)
+            {
+                queries.Add(GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 2));
+            }
+            var result = await Task.WhenAll(queries.ToArray());
             pageToken.Cancel();
             // wait for other processing to finish before updating lbin
             await Task.Delay(1000);
