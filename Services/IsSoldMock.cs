@@ -20,7 +20,7 @@ public class FlipReceiveTrackerClient : IFlipReceiveTracker, IPriceStorageServic
 {
 
     SniperSocket sniperSocket;
-    ConcurrentDictionary<Guid, long> prices = new ConcurrentDictionary<Guid, long>();
+    (Guid itemId, long Price) lastPrice = (Guid.Empty, 0);
 
     public FlipReceiveTrackerClient(SniperSocket sniperSocket)
     {
@@ -34,20 +34,22 @@ public class FlipReceiveTrackerClient : IFlipReceiveTracker, IPriceStorageServic
 
     public Task ReceiveFlip(string auctionId, string playerId, DateTime when = default)
     {
-        prices.TryRemove(Guid.Parse(auctionId), out var price);
+        var last = lastPrice;
+        lastPrice = (Guid.Empty, 0);
         sniperSocket.SendToServer(Response.Create(typeof(FlipSentOnProxy).Name, new FlipSentOnProxy.Data()
         {
             AuctionId = auctionId,
             PlayerId = playerId,
             Time = when,
-            Value = price
+            Value = last.Price,
+            ItemId = last.itemId
         }));
         return Task.CompletedTask;
     }
 
     public Task SetPrice(Guid playerUuid, Guid uuid, long value)
     {
-        prices.TryAdd(uuid,  value);
+        lastPrice = (uuid, value);
         return Task.CompletedTask;
     }
 }
