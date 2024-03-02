@@ -41,7 +41,7 @@ namespace Coflnet.Sky.BFCS.Services
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Error loading external data");
+                logger.LogError(e, $"Error loading external data via {api.Configuration.BasePath}");
             }
         }
 
