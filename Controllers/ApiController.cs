@@ -1,15 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Coflnet.Sky.BFCS.Models;
 using System;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using System.Collections;
-using System.Collections.Generic;
-using Coflnet.Sky.BFCS.Services;
 using Coflnet.Sky.Core;
-using Coflnet.Sky.Commands.Shared;
 using Coflnet.Sky.Sniper.Services;
 
 namespace Coflnet.Sky.BFCS.Controllers
