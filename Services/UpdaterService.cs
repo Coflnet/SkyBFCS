@@ -14,12 +14,12 @@ namespace Coflnet.Sky.BFCS.Services
 {
     public class UpdaterService : BackgroundService
     {
-        private SniperService sniper;
-        private static HttpClient httpClient = new HttpClient();
-        private IConnectionMultiplexer redis;
-        private ExternalDataLoader externalLoader;
-        private FullUpdater fullUpdater;
-        private ILogger<UpdaterService> logger;
+        private readonly SniperService sniper;
+        private static readonly HttpClient httpClient = new HttpClient();
+        private readonly IConnectionMultiplexer redis;
+        private readonly ExternalDataLoader externalLoader;
+        private readonly FullUpdater fullUpdater;
+        private readonly ILogger<UpdaterService> logger;
         private readonly SnipeUpdater updater;
 
         private readonly Gauge firstFlipPublished = Metrics.CreateGauge("sky_update_first_flip", "Time till first flip was sent to redis");
