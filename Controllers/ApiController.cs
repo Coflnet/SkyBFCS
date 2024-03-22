@@ -31,7 +31,7 @@ namespace Coflnet.Sky.BFCS.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("mockFlip")]
-        public async Task TrackFlip([FromBody] LowPricedAuction[] flips)
+        public void MockFlip([FromBody] LowPricedAuction[] flips)
         {
             foreach (var item in flips)
             {
