@@ -5,7 +5,6 @@ using Microsoft.Extensions.Hosting;
 using Coflnet.Sky.Sniper.Services;
 using System.Net.Http;
 using StackExchange.Redis;
-using Coflnet.Sky.Updater;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
 using Prometheus;
