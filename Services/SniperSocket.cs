@@ -89,7 +89,8 @@ public class SniperSocket : MinecraftSocket
             if (ReadyState == WebSocketState.Open && !WindingDown)
             {
                 ConnectClient();
-                Console.WriteLine("reconnecting ");
+                var accountId = sessionLifesycle.AccountInfo?.Value?.UserId;
+                Console.WriteLine("reconnecting " + accountId);
             }
             else
                 Console.WriteLine("closing because " + e.Reason);
