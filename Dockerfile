@@ -14,7 +14,7 @@ RUN git clone --depth=1 https://github.com/NotEnoughUpdates/NotEnoughUpdates-REP
 COPY SkyBFCS.csproj SkyBFCS.csproj
 RUN dotnet restore
 COPY . .
-RUN mkdir Mock && mkdir /app/Mock && cp /build/SkySniper/Mock/ Mock/ -r
+RUN mkdir Mock && mkdir -p /app/Mock && cp /build/SkySniper/Mock/ Mock/ -r
 RUN dotnet test && dotnet publish -c release -o /app && rm /app/items.json
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
