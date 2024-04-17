@@ -15,7 +15,7 @@ namespace Coflnet.Sky.BFCS.Services
 {
     public class FullUpdater : Updater.Updater
     {
-        Sky.Sniper.Services.SniperService sniper;
+        SniperService sniper;
         ActiveUpdater activeUpdater;
         ILogger<FullUpdater> logger;
 
