@@ -19,7 +19,6 @@ namespace Coflnet.Sky.BFCS.Services
         ActiveUpdater activeUpdater;
         ILogger<FullUpdater> logger;
 
-
         public FullUpdater(SniperService sniper, ActiveUpdater activeUpdater, ILogger<FullUpdater> logger, ActivitySource activitySource)
             : base(null, new MockSkinHandler(), activitySource, null)
         {
