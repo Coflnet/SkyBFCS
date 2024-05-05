@@ -20,10 +20,17 @@ namespace Coflnet.Sky.BFCS.Services
         private readonly FullUpdater fullUpdater;
         private readonly ILogger<UpdaterService> logger;
         private readonly SnipeUpdater updater;
+        private readonly BfcsBackgroundService bfcsBackgroundService;
 
         private readonly Gauge firstFlipPublished = Metrics.CreateGauge("sky_update_first_flip", "Time till first flip was sent to redis");
 
-        public UpdaterService(SniperService sniper, IConnectionMultiplexer redis, ExternalDataLoader externalLoader, FullUpdater fullUpdater, ILogger<UpdaterService> logger, SnipeUpdater updater)
+        public UpdaterService(SniperService sniper,
+                              IConnectionMultiplexer redis,
+                              ExternalDataLoader externalLoader,
+                              FullUpdater fullUpdater,
+                              ILogger<UpdaterService> logger,
+                              SnipeUpdater updater,
+                              BfcsBackgroundService bfcsBackgroundService)
         {
             this.sniper = sniper;
             this.redis = redis;
@@ -31,6 +38,7 @@ namespace Coflnet.Sky.BFCS.Services
             this.fullUpdater = fullUpdater;
             this.logger = logger;
             this.updater = updater;
+            this.bfcsBackgroundService = bfcsBackgroundService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -71,6 +79,8 @@ namespace Coflnet.Sky.BFCS.Services
                     await httpClient.PostAsync($"https://sky.coflnet.com/api/flip/track/found/{lp.Auction.Uuid}?finder=test&price={lp.TargetPrice}&timeStamp={timestamp}", null);
                 }).ConfigureAwait(false);
             };
+            await bfcsBackgroundService.SubscribeToRedisSnipes(stoppingToken);
+            logger.LogInformation("Init: subscribed to redis");
 
             var stopping = stoppingToken;
             StartBackgroundFullUpdates(stopping);

@@ -208,6 +208,7 @@ public class SniperSocket : MinecraftSocket
             this.sessionLifesycle = new ModSessionLifesycle(this);
             SendMessage("received account info, ready to speed up flips");
             GetService<SniperService>().FoundSnipe += SendSnipe;
+            GetService<BfcsBackgroundService>().FoundSnipe += SendSnipe;
             if (data.Settings.AllowedFinders.HasFlag(LowPricedAuction.FinderType.USER))
                 GetService<SnipeUpdater>().NewAuction += UserFlip;
         }
@@ -290,7 +291,9 @@ public class SniperSocket : MinecraftSocket
                 snipe.Auction.Context["cname"] = name + McColorCodes.GRAY + "-us";
             }
             if (await this.SendFlip(snipe))
-                Console.WriteLine("sending failed :(");
+                Console.WriteLine("sending failed :( " + snipe.Auction.Uuid);
+            else if(snipe.TargetPrice - snipe.Auction.StartingBid > 10_000_000)
+                Console.WriteLine($"sent {snipe.Auction.Uuid} to {SessionInfo?.McUuid}");
         }, "sending flip", 1);
     }
 
@@ -321,6 +324,7 @@ public class SniperSocket : MinecraftSocket
     {
         var sniper = DiHandler.GetService<SniperService>();
         sniper.FoundSnipe -= SendSnipe;
+        GetService<BfcsBackgroundService>().FoundSnipe -= SendSnipe;
         GetService<SnipeUpdater>().NewAuction -= UserFlip;
         clientSocket.Close();
         Console.WriteLine("error " + e.Reason);
