@@ -14,12 +14,14 @@ namespace Coflnet.Sky.BFCS.Services
         private IConfiguration config;
         private ILogger<ExternalDataLoader> logger;
         private ISniperApi api;
-        public ExternalDataLoader(SniperService sniper, IConfiguration config, ILogger<ExternalDataLoader> logger, ISniperApi api)
+        private ICraftCostService craftCostService;
+        public ExternalDataLoader(SniperService sniper, IConfiguration config, ILogger<ExternalDataLoader> logger, ISniperApi api, ICraftCostService craftCostService)
         {
             this.sniper = sniper;
             this.config = config;
             this.logger = logger;
             this.api = api;
+            this.craftCostService = craftCostService;
         }
 
         public async Task Load()
@@ -36,6 +38,7 @@ namespace Coflnet.Sky.BFCS.Services
                 {
                     await LoadItemData(id);
                 });
+                await LoadCraftCost();
                 sniper.State = SniperState.Ready;
                 logger.LogInformation("done loading external data");
             }
@@ -43,6 +46,17 @@ namespace Coflnet.Sky.BFCS.Services
             {
                 logger.LogError(e, $"Error loading external data via {api.Configuration.BasePath}");
             }
+        }
+
+        private async Task LoadCraftCost()
+        {
+            logger.LogInformation("Loading craft cost");
+            var crafts = await api.ApiSniperDumpCraftCostGetAsync(config["SNIPER_TRANSFER_TOKEN"]);
+            foreach (var item in crafts)
+            {
+                craftCostService.Costs[item.Key] = item.Value;
+            }
+            logger.LogInformation("done loading craft cost of {count} items", crafts.Count);
         }
 
         private async Task LoadItemData(string id, int retryCount = 0)
