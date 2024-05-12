@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Coflnet.Sky.Sniper.Client.Api;
 using Coflnet.Sky.Sniper.Models;
 using System;
+using Coflnet.Sky.Core;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -31,7 +32,9 @@ namespace Coflnet.Sky.BFCS.Services
                 logger.LogInformation("Loading external data");
                 if (sniper.State < SniperState.Ready)
                     sniper.State = SniperState.LadingLookup;
-                var ids = await api.ApiSniperLookupGetAsync();
+                var idresponse = await api.ApiSniperLookupGetWithHttpInfoAsync();
+                logger.LogInformation($"external data response {idresponse.StatusCode} {idresponse.RawContent.Truncate(50)}");
+                var ids = idresponse.Data;
                 logger.LogInformation("done with ids");
                 await Parallel.ForEachAsync(ids, new ParallelOptions() { MaxDegreeOfParallelism = 3 },
                 async (id, c) =>
