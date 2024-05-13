@@ -239,6 +239,12 @@ public class SniperSocket : MinecraftSocket
         }
         else
             dl.CurrentDelay = TimeSpan.FromMilliseconds(data.ApproxDelay);
+        if(settings.Visibility.Seller)
+        {
+            Dialog(db => db.Break.MsgLine("You had seller name in your flip settings enabled, this does not work on the us-instance because would slow down flips", null, "Seller visibility is not allowed")
+                .CoflCommand<SetCommand>($"{McColorCodes.GREEN}Click here to disable that setting", "showseller false", "Disable to speed up flips"));
+            settings.Visibility.Seller = false;
+        }
         return Task.CompletedTask;
     }
 
