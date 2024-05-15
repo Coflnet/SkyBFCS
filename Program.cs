@@ -1,4 +1,3 @@
-using System.Threading;
 using System.Threading.Tasks;
 using Coflnet.Sky.BFCS.Services;
 using Microsoft.AspNetCore.Hosting;
