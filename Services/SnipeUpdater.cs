@@ -11,109 +11,107 @@ using System.Threading;
 using System.Linq;
 using System.Diagnostics;
 
-namespace Coflnet.Sky.BFCS.Services
+namespace Coflnet.Sky.BFCS.Services;
+public class SnipeUpdater : NewUpdater
 {
-    public class SnipeUpdater : NewUpdater
+    Sky.Sniper.Services.SniperService sniper;
+    // protected override string ApiBaseUrl => "https://localhost:7013";
+    Channel<Element> newAuctions;
+    public event Action<SaveAuction> NewAuction;
+    public event Action UpdateProcessed;
+    private int coreCount;
+
+    public SnipeUpdater(SniperService sniper) : base(Updater.Updater.activitySource, null)
     {
-        Sky.Sniper.Services.SniperService sniper;
-        // protected override string ApiBaseUrl => "https://localhost:7013";
-        Channel<Element> newAuctions;
-        public event Action<SaveAuction> NewAuction;
-        public event Action UpdateProcessed;
-        private int coreCount;
+        this.sniper = sniper;
+        newAuctions = Channel.CreateUnbounded<Element>();
+        SpawnWorker(sniper);
+        SpawnWorker(sniper);
+        // get the number of cores
+        coreCount = Environment.ProcessorCount;
+        Console.WriteLine("Info: Using " + coreCount + " processors");
+    }
 
-        public SnipeUpdater(SniperService sniper) : base(Updater.Updater.activitySource, null)
+    private void SpawnWorker(SniperService sniper)
+    {
+        Task.Run(async () =>
         {
-            this.sniper = sniper;
-            newAuctions = Channel.CreateUnbounded<Element>();
-            SpawnWorker(sniper);
-            SpawnWorker(sniper);
-            // get the number of cores
-            coreCount = Environment.ProcessorCount;
-            Console.WriteLine("Info: Using " + coreCount + " processors");
-        }
-
-        private void SpawnWorker(SniperService sniper)
-        {
-            Task.Run(async () =>
+            while (true)
             {
-                while (true)
+                try
                 {
-                    try
+                    var next = await newAuctions.Reader.ReadAsync().ConfigureAwait(false);
+                    var isLast = newAuctions.Reader.Count == 0;
+                    if (!next.auction.BuyItNow)
+                        continue;
+                    var a = Updater.Updater.ConvertAuction(next.auction, next.lastUpdated);
+                    a.Context["upage"] = next.pageId.ToString();
+                    a.Context["utry"] = next.tryCount.ToString();
+                    sniper.TestNewAuction(a);
+                    NewAuction?.Invoke(a);
+                    if (isLast)
                     {
-                        var next = await newAuctions.Reader.ReadAsync().ConfigureAwait(false);
-                        var isLast = newAuctions.Reader.Count == 0;
-                        if (!next.auction.BuyItNow)
-                            continue;
-                        var a = Updater.Updater.ConvertAuction(next.auction, next.lastUpdated);
-                        a.Context["upage"] = next.pageId.ToString();
-                        a.Context["utry"] = next.tryCount.ToString();
-                        sniper.TestNewAuction(a);
-                        NewAuction?.Invoke(a);
-                        if (isLast)
-                        {
-                            Console.WriteLine("Info: No more auctions");
-                            UpdateProcessed?.Invoke();
-                        }
-                    }
-                    catch (System.Exception e)
-                    {
-                        dev.Logger.Instance.Error(e, "Testing new auction");
+                        Console.WriteLine("Info: No more auctions");
+                        UpdateProcessed?.Invoke();
                     }
                 }
-            });
-        }
-
-        protected override async Task<DateTime> DoOneUpdate(DateTime lastUpdate, IProducer<string, SaveAuction> p, int page, Activity siteSpan)
-        {
-            var pageToken = new CancellationTokenSource(20000);
-            var queries = new List<Task<(DateTime, int)>> { GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 0) };
-            if (coreCount > 1)
-            {
-                queries.Add(GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 4));
+                catch (System.Exception e)
+                {
+                    dev.Logger.Instance.Error(e, "Testing new auction");
+                }
             }
-            if (coreCount > 3)
-            {
-                queries.Add(GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 2));
-            }
-            var result = await Task.WhenAll(queries.ToArray());
-            pageToken.Cancel();
-            // wait for other processing to finish before updating lbin
-            await Task.Delay(1000);
-            sniper.FinishedUpdate();
-            sniper.PrintLogQueue();
-            return result.Max(a => a.Item1);
-        }
+        });
+    }
 
-        protected override void ProduceSells(List<SaveAuction> binupdate)
+    protected override async Task<DateTime> DoOneUpdate(DateTime lastUpdate, IProducer<string, SaveAuction> p, int page, Activity siteSpan)
+    {
+        var pageToken = new CancellationTokenSource(20000);
+        var queries = new List<Task<(DateTime, int)>> { GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 0) };
+        if (coreCount > 1)
         {
-            foreach (var item in binupdate)
-                sniper.AddSoldItem(item);
-            dev.Logger.Instance.Info("Recieved " + binupdate.Count + " sold items");
+            queries.Add(GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 4));
         }
+        if (coreCount > 3)
+        {
+            queries.Add(GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 2));
+        }
+        var result = await Task.WhenAll(queries.ToArray());
+        pageToken.Cancel();
+        // wait for other processing to finish before updating lbin
+        await Task.Delay(1000);
+        sniper.FinishedUpdate();
+        sniper.PrintLogQueue();
+        return result.Max(a => a.Item1);
+    }
 
-        protected override IProducer<string, SaveAuction> GetProducer()
-        {
-            return new MockProd<SaveAuction>(a => sniper.TestNewAuction(a));
-        }
+    protected override void ProduceSells(List<SaveAuction> binupdate)
+    {
+        foreach (var item in binupdate)
+            sniper.AddSoldItem(item);
+        dev.Logger.Instance.Info("Recieved " + binupdate.Count + " sold items");
+    }
 
-        protected override void FoundNew(int pageId, IProducer<string, SaveAuction> p, AuctionPage page, int tryCount, Auction auction, Activity prodSpan)
-        {
-            newAuctions.Writer.WriteAsync(new Element()
-            {
-                auction = auction,
-                lastUpdated = page.LastUpdated,
-                pageId = pageId,
-                tryCount = tryCount
-            }).ConfigureAwait(false);
-        }
+    protected override IProducer<string, SaveAuction> GetProducer()
+    {
+        return new MockProd<SaveAuction>(a => sniper.TestNewAuction(a));
+    }
 
-        public class Element
+    protected override void FoundNew(int pageId, IProducer<string, SaveAuction> p, AuctionPage page, int tryCount, Auction auction, Activity prodSpan)
+    {
+        newAuctions.Writer.WriteAsync(new Element()
         {
-            public Auction auction;
-            public int pageId;
-            public int tryCount;
-            public DateTime lastUpdated;
-        }
+            auction = auction,
+            lastUpdated = page.LastUpdated,
+            pageId = pageId,
+            tryCount = tryCount
+        }).ConfigureAwait(false);
+    }
+
+    public class Element
+    {
+        public Auction auction;
+        public int pageId;
+        public int tryCount;
+        public DateTime lastUpdated;
     }
 }
