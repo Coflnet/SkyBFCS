@@ -34,7 +34,7 @@ public class SniperSocket : MinecraftSocket
 
         ExecuteBoth = new ClassNameDictonary<McCommand>();
         ExecuteBoth.Add<UploadInventory>();
-
+        ExecuteBoth.Add<FlipCommand>();
     }
     public SniperSocket()
     {
