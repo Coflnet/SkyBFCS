@@ -6,7 +6,7 @@ namespace Coflnet.Sky.BFCS.Services;
 
 public class StaticDelayHandlerTest
 {
-    StaticDelayHandler staticDelayHandler = new StaticDelayHandler(TimeSpan.FromSeconds(5), new());
+    StaticDelayHandler staticDelayHandler = new StaticDelayHandler(TimeSpan.FromSeconds(5), new(),  "107.152.37.100");
 
     [TestCase(1_000_000, 11_000_000, 10)]
     [TestCase(1_000_000, 110_000_000, 1)]
@@ -25,5 +25,12 @@ public class StaticDelayHandlerTest
 
         var result = staticDelayHandler.IsLikelyBot(flipInstance);
         Assert.That(result, Is.EqualTo(match));
+    }
+
+    [Test]
+    public void IsDatacenter()
+    {
+        var result = staticDelayHandler.isDatacenterIp;
+        Assert.That(result, Is.EqualTo(true));
     }
 }

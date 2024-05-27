@@ -233,13 +233,13 @@ public class SniperSocket : MinecraftSocket
         var dl = sessionLifesycle.DelayHandler as StaticDelayHandler;
         if (dl == null)
         {
-            sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay), this.SessionInfo);
+            sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay), this.SessionInfo, this.ClientIp);
             var extended = new ExtendedSpamController(f => IsReceived(f.Uuid));
             sessionLifesycle.FlipProcessor = new FlipProcesser(this, extended, sessionLifesycle.DelayHandler);
         }
         else
             dl.CurrentDelay = TimeSpan.FromMilliseconds(data.ApproxDelay);
-        if(settings.Visibility.Seller)
+        if (settings.Visibility.Seller)
         {
             Dialog(db => db.Break.MsgLine("You had seller name in your flip settings enabled, this does not work on the us-instance because would slow down flips", null, "Seller visibility is not allowed")
                 .CoflCommand<SetCommand>($"{McColorCodes.GREEN}Click here to disable that setting", "showseller false", "Disable to speed up flips"));
@@ -298,7 +298,7 @@ public class SniperSocket : MinecraftSocket
             }
             if (await this.SendFlip(snipe))
                 Console.WriteLine("sending failed :( " + snipe.Auction.Uuid);
-            else if(snipe.TargetPrice - snipe.Auction.StartingBid > 10_000_000)
+            else if (snipe.TargetPrice - snipe.Auction.StartingBid > 10_000_000)
                 Console.WriteLine($"sent {snipe.Auction.Uuid} to {SessionInfo?.McUuid}");
         }, "sending flip", 1);
     }
