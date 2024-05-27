@@ -23,10 +23,20 @@ public class StaticDelayHandler : IDelayHandler
         this.sessionInfo = sessionInfo;
         if (clientIP == null)
             return;
-        // check if ip is from datacenter range 107.152.32.0/20
+        isDatacenterIp = IsDatacenter(clientIP);
+    }
+
+    private bool IsDatacenter(string clientIP)
+    {
         uint addressAsInt = BitConverter.ToUInt32(IPAddress.Parse(clientIP).GetAddressBytes().Reverse().ToArray(), 0);
-        (uint lower, uint upper) = GetIpRange("107.152.32.0/20");
-        isDatacenterIp = lower < addressAsInt && addressAsInt < upper;
+        string[] ipRanges = ["107.152.32.0/20", "130.51.22.0/24"];
+        foreach (var item in ipRanges)
+        {
+            (uint lower, uint upper) = GetIpRange(item);
+            if (lower < addressAsInt && addressAsInt < upper)
+                return true;
+        }
+        return false;
     }
 
     public (uint lower, uint upper) GetIpRange(string mask)
