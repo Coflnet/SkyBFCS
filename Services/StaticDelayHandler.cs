@@ -81,7 +81,7 @@ public class StaticDelayHandler : IDelayHandler
 
     public bool IsLikelyBot(FlipInstance flipInstance)
     {
-        return flipInstance.ProfitPercentage > 500 || flipInstance.Profit > 50_000_000 / Math.Min(flipInstance.Volume, 10);
+        return flipInstance.ProfitPercentage > 300 || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 10);
     }
 
     public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime)
