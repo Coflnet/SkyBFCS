@@ -13,6 +13,7 @@ using Coflnet.Sky.BFCS.Models;
 using Coflnet.Sky.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Coflnet.Sky.ModCommands.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace Coflnet.Sky.BFCS.Services;
 public class SniperSocket : MinecraftSocket
@@ -68,7 +69,7 @@ public class SniperSocket : MinecraftSocket
         var args = QueryString;
         var x = System.Web.HttpUtility.ParseQueryString("");
         Console.WriteLine(QueryString.ToString());
-        clientSocket = new WebSocket("wss://sky.coflnet.com/modsocket?" + QueryString + "&type=us-proxy&ip=" + ClientIp);
+        clientSocket = new WebSocket(GetService<IConfiguration>()["SOCKET_BASE_URL"] + "/modsocket?" + QueryString + "&type=us-proxy&ip=" + ClientIp);
         clientSocket.OnMessage += (s, ev) =>
         {
             TryAsyncTimes(async () =>
