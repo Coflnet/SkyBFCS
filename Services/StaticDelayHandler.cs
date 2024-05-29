@@ -11,6 +11,7 @@ namespace Coflnet.Sky.BFCS.Services;
 public class StaticDelayHandler : IDelayHandler
 {
     public TimeSpan CurrentDelay { get; set; }
+    public TimeSpan MacroDelay => default;
     private readonly SessionInfo sessionInfo;
 
     public event Action<TimeSpan> OnDelayChange;
