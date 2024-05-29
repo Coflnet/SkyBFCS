@@ -213,6 +213,12 @@ public class SniperSocket : MinecraftSocket
             GetService<BfcsBackgroundService>().FoundSnipe += SendSnipe;
             if (data.Settings.AllowedFinders.HasFlag(LowPricedAuction.FinderType.USER))
                 GetService<SnipeUpdater>().NewAuction += UserFlip;
+
+            if (data.SessionInfo.McName == "Ekwav")
+                foreach (var item in Headers)
+                {
+                    Dialog(db => db.Msg($"{item}:{Headers[item.ToString()]}"));
+                }
         }
         sessionLifesycle.FlipSettings?.Value?.CancelCompilation();
         var settings = data.Settings;
