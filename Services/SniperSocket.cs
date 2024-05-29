@@ -68,7 +68,7 @@ public class SniperSocket : MinecraftSocket
         var args = QueryString;
         var x = System.Web.HttpUtility.ParseQueryString("");
         Console.WriteLine(QueryString.ToString());
-        clientSocket = new WebSocket("wss://sky.coflnet.com/modsocket?" + QueryString + "&type=us-proxy");
+        clientSocket = new WebSocket("wss://sky.coflnet.com/modsocket?" + QueryString + "&type=us-proxy&ip=" + ClientIp);
         clientSocket.OnMessage += (s, ev) =>
         {
             TryAsyncTimes(async () =>
@@ -95,7 +95,6 @@ public class SniperSocket : MinecraftSocket
             else
                 Console.WriteLine("closing because " + e.Reason);
         };
-
         clientSocket.Connect();
     }
 
