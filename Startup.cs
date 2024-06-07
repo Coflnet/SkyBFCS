@@ -18,7 +18,6 @@ using Coflnet.Sky.Commands.Shared;
 using Coflnet.Sky.ModCommands.Services;
 using Coflnet.Sky.Core.Services;
 using System.Net.Http;
-using Amazon.Runtime.Internal.Settings;
 
 namespace Coflnet.Sky.BFCS
 {
@@ -51,7 +50,7 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<ActiveUpdater>();
             services.AddSingleton<FullUpdater>();
             services.AddSingleton<Kafka.KafkaCreator>();
-            services.AddSingleton<IPersistenceManager, PersistenceManager>(s => null);
+            services.AddSingleton<IPersitanceManager, MockPersistenceManager>(s => new());
             services.AddSingleton<IConnectionMultiplexer>(provider =>
             {
                 var logger = provider.GetRequiredService<ILogger<Startup>>();
