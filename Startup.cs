@@ -16,7 +16,6 @@ using StackExchange.Redis;
 using Coflnet.Sky.Sniper.Client.Api;
 using Coflnet.Sky.Commands.Shared;
 using Coflnet.Sky.ModCommands.Services;
-using Coflnet.Sky.Commands;
 using Coflnet.Sky.Core.Services;
 using System.Net.Http;
 
@@ -64,7 +63,7 @@ namespace Coflnet.Sky.BFCS
                 {
                     return ConnectionMultiplexer.Connect(redisOptions);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
                     logger.LogError("Could not connect to redis, starting without");
                     return null;
