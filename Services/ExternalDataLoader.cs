@@ -6,6 +6,9 @@ using Coflnet.Sky.Sniper.Client.Api;
 using Coflnet.Sky.Sniper.Models;
 using System;
 using Coflnet.Sky.Core;
+using System.Linq;
+using System.Collections.Generic;
+using MessagePack;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -32,11 +35,7 @@ namespace Coflnet.Sky.BFCS.Services
                 logger.LogInformation("Loading external data");
                 if (sniper.State < SniperState.Ready)
                     sniper.State = SniperState.LadingLookup;
-                var idresponse = await api.ApiSniperLookupGetWithHttpInfoAsync();
-                logger.LogInformation($"external data response {idresponse.StatusCode} {idresponse.RawContent.Truncate(50)}");
-                var ids = idresponse.Data;
-                logger.LogInformation("done with ids");
-                await Parallel.ForEachAsync(ids, new ParallelOptions() { MaxDegreeOfParallelism = 3 },
+                await Parallel.ForEachAsync(Enumerable.Range(0, 100), new ParallelOptions() { MaxDegreeOfParallelism = 3 },
                 async (id, c) =>
                 {
                     await LoadItemData(id);
@@ -62,25 +61,28 @@ namespace Coflnet.Sky.BFCS.Services
             logger.LogInformation("done loading craft cost of {count} items", crafts.Count);
         }
 
-        private async Task LoadItemData(string id, int retryCount = 0)
+        private async Task LoadItemData(int groupId, int retryCount = 0)
         {
             try
             {
-                var data = (await api.ApiSniperLookupItemIdGetAsync(id, config["SNIPER_TRANSFER_TOKEN"])).Trim('"');
+                var data = (await api.ApiSniperLookupGroupGroupIdGetAsync(groupId, config["SNIPER_TRANSFER_TOKEN"])).Trim('"');
                 if (data == null)
                     return;
                 var bytes = Convert.FromBase64String(data);
-                var elements = MessagePack.MessagePackSerializer.Deserialize<PriceLookup>(bytes);
-                sniper.AddLookupData(id, elements);
-                logger.LogInformation("imported auction data for {0} total of {count}", id, elements.Lookup.Count);
+                var elements = MessagePack.MessagePackSerializer.Deserialize<IEnumerable<IGrouping<int, KeyValuePair<string, PriceLookup>>>>(bytes, MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4Block));
+                foreach (var item in elements.First())
+                {
+                    sniper.AddLookupData(item.Key, item.Value);
+                }
+                logger.LogInformation("imported auction data for {0} total of {count}", groupId, elements.First().Count());
             }
             catch (Exception e)
             {
                 if (retryCount > 3)
                     return;
-                logger.LogError(e, $"Error loading {id}");
+                logger.LogError(e, $"Error loading {groupId}");
                 await Task.Delay((retryCount + 1) * 2000);
-                await LoadItemData(id, retryCount + 1);
+                await LoadItemData(groupId, retryCount + 1);
             }
         }
     }
