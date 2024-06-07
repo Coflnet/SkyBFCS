@@ -9,6 +9,7 @@ using Coflnet.Sky.Core;
 using System.Linq;
 using System.Collections.Generic;
 using MessagePack;
+using System.Collections.Concurrent;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -84,6 +85,37 @@ namespace Coflnet.Sky.BFCS.Services
                 await Task.Delay((retryCount + 1) * 2000);
                 await LoadItemData(groupId, retryCount + 1);
             }
+        }
+    }
+
+    /// <summary>
+    /// actually works differently than designed intialially via the external data loader
+    /// </summary>
+    public class ExternalPeristenceManager : IPersitanceManager
+    {
+        public Task<ConcurrentDictionary<string, AttributeLookup>> GetWeigths()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<KeyValuePair<string, PriceLookup>>> LoadGroup(int groupId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task LoadLookups(SniperService service)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SaveLookup(ConcurrentDictionary<string, PriceLookup> lookups)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SaveWeigths(ConcurrentDictionary<string, AttributeLookup> lookups)
+        {
+            throw new NotImplementedException();
         }
     }
 }

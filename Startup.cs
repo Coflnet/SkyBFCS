@@ -50,7 +50,7 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<ActiveUpdater>();
             services.AddSingleton<FullUpdater>();
             services.AddSingleton<Kafka.KafkaCreator>();
-            services.AddSingleton<IPersitanceManager, MockPersistenceManager>(s => new());
+            services.AddSingleton<IPersitanceManager, ExternalPeristenceManager>(s => new());
             services.AddSingleton<IConnectionMultiplexer>(provider =>
             {
                 var logger = provider.GetRequiredService<ILogger<Startup>>();
