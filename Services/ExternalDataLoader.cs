@@ -20,13 +20,15 @@ namespace Coflnet.Sky.BFCS.Services
         private ILogger<ExternalDataLoader> logger;
         private ISniperApi api;
         private ICraftCostService craftCostService;
-        public ExternalDataLoader(SniperService sniper, IConfiguration config, ILogger<ExternalDataLoader> logger, ISniperApi api, ICraftCostService craftCostService)
+        private IPersitanceManager persitanceManager;
+        public ExternalDataLoader(SniperService sniper, IConfiguration config, ILogger<ExternalDataLoader> logger, ISniperApi api, ICraftCostService craftCostService, IPersitanceManager persitanceManager)
         {
             this.sniper = sniper;
             this.config = config;
             this.logger = logger;
             this.api = api;
             this.craftCostService = craftCostService;
+            this.persitanceManager = persitanceManager;
         }
 
         public async Task Load()
@@ -66,16 +68,12 @@ namespace Coflnet.Sky.BFCS.Services
         {
             try
             {
-                var data = (await api.ApiSniperLookupGroupGroupIdGetAsync(groupId, config["SNIPER_TRANSFER_TOKEN"])).Trim('"');
-                if (data == null)
-                    return;
-                var bytes = Convert.FromBase64String(data);
-                var elements = MessagePack.MessagePackSerializer.Deserialize<IEnumerable<IGrouping<int, KeyValuePair<string, PriceLookup>>>>(bytes, MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4Block));
-                foreach (var item in elements.First())
+                var data = await NewMethod(groupId);
+                foreach (var item in data)
                 {
                     sniper.AddLookupData(item.Key, item.Value);
                 }
-                logger.LogInformation("imported auction data for {0} total of {count}", groupId, elements.First().Count());
+                logger.LogInformation("imported auction data for {0} total of {count}", groupId, data.Count());
             }
             catch (Exception e)
             {
@@ -85,6 +83,20 @@ namespace Coflnet.Sky.BFCS.Services
                 await Task.Delay((retryCount + 1) * 2000);
                 await LoadItemData(groupId, retryCount + 1);
             }
+        }
+
+        private async Task<List<KeyValuePair<string, PriceLookup>>> NewMethod(int groupId)
+        {
+            var internalLoad = persitanceManager.LoadGroup(groupId);
+            if (internalLoad != null)
+            {
+                return await internalLoad;
+            }
+            var data = (await api.ApiSniperLookupGroupGroupIdGetAsync(groupId, config["SNIPER_TRANSFER_TOKEN"])).Trim('"');
+            if (data == null)
+                throw new Exception("No data found " + groupId);
+            var bytes = Convert.FromBase64String(data);
+            return MessagePackSerializer.Deserialize<IEnumerable<IGrouping<int, KeyValuePair<string, PriceLookup>>>>(bytes, MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4Block)).First().ToList();
         }
     }
 
@@ -100,7 +112,7 @@ namespace Coflnet.Sky.BFCS.Services
 
         public Task<List<KeyValuePair<string, PriceLookup>>> LoadGroup(int groupId)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public Task LoadLookups(SniperService service)

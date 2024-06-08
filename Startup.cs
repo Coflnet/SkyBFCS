@@ -50,7 +50,10 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<ActiveUpdater>();
             services.AddSingleton<FullUpdater>();
             services.AddSingleton<Kafka.KafkaCreator>();
-            services.AddSingleton<IPersitanceManager, ExternalPeristenceManager>(s => new());
+            if (Configuration["MINIO_SECRET"] != null)
+                services.AddSingleton<IPersitanceManager, S3PersistanceManager>();
+            else
+                services.AddSingleton<IPersitanceManager, ExternalPeristenceManager>(s => new());
             services.AddSingleton<IConnectionMultiplexer>(provider =>
             {
                 var logger = provider.GetRequiredService<ILogger<Startup>>();
