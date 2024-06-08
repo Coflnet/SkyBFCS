@@ -66,7 +66,7 @@ namespace Coflnet.Sky.BFCS.Services
                 if (lp.TargetPrice < 2_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.08 || lp.DailyVolume < 0.2 || lp.Finder == Core.LowPricedAuction.FinderType.STONKS)
                     return;
                 prod?.Publish(new RedisChannel("snipes", RedisChannel.PatternMode.Literal), MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
-                if(firstPublished < lp.Auction.FindTime - TimeSpan.FromSeconds(20))
+                if (firstPublished < lp.Auction.FindTime - TimeSpan.FromSeconds(20))
                 {
                     var apiUpdateTime = lp.Auction.FindTime;
                     firstPublished = DateTime.UtcNow; // prevent multiple updates in same minute
@@ -150,12 +150,12 @@ namespace Coflnet.Sky.BFCS.Services
             {
                 foreach (var bucket in item.Value.Lookup)
                 {
-                    if(bucket.Value.References.Count < 4)
+                    if (bucket.Value.References.Count < 4)
                         continue; // can't have a median
                     // make sure all medians are up to date
                     sniper.UpdateMedian(bucket.Value, (item.Key, sniper.GetBreakdownKey(bucket.Key, item.Key)));
-                    await Task.Delay(2); // prevent blocking the thread
                 }
+                await Task.Delay(5); // prevent blocking the thread
             }
             logger.LogInformation("Done refreshing all medians");
         }
