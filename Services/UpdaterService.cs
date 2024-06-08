@@ -55,6 +55,7 @@ namespace Coflnet.Sky.BFCS.Services
                 // load again in case the main instance didn't have all items at the time
                 await externalLoader.Load();
             }).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // give other services time to load
             await DoFullUpdate(stoppingToken);
             logger.LogInformation("Init: done full update");
 
@@ -144,16 +145,19 @@ namespace Coflnet.Sky.BFCS.Services
 
         private async Task RefreshAllMedians()
         {
+            logger.LogInformation("Refreshing all medians");
             foreach (var item in sniper.Lookups)
             {
                 foreach (var bucket in item.Value.Lookup)
                 {
+                    if(bucket.Value.References.Count < 4)
+                        continue; // can't have a median
                     // make sure all medians are up to date
                     sniper.UpdateMedian(bucket.Value, (item.Key, sniper.GetBreakdownKey(bucket.Key, item.Key)));
+                    await Task.Delay(2); // prevent blocking the thread
                 }
-                if (item.Value.Lookup.Count > 3)
-                    await Task.Delay(10);
             }
+            logger.LogInformation("Done refreshing all medians");
         }
     }
 }
