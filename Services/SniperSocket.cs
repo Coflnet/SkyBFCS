@@ -207,7 +207,10 @@ public class SniperSocket : MinecraftSocket
         this.SessionInfo = SelfUpdatingValue<SessionInfo>.CreateNoUpdate(data.SessionInfo);
         if (this.sessionLifesycle == null)
         {
-            this.sessionLifesycle = new ModSessionLifesycle(this);
+            sessionLifesycle = new ModSessionLifesycle(this)
+            {
+                UserId = SelfUpdatingValue<string>.CreateNoUpdate(data.AccountInfo.UserId)
+            };
             SendMessage("received account info, ready to speed up flips");
             GetService<SniperService>().FoundSnipe += SendSnipe;
             GetService<BfcsBackgroundService>().FoundSnipe += SendSnipe;
