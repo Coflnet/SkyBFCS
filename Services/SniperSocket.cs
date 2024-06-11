@@ -14,6 +14,7 @@ using Coflnet.Sky.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Coflnet.Sky.ModCommands.Services;
 using Microsoft.Extensions.Configuration;
+using Coflnet.Sky.ModCommands.Dialogs;
 
 namespace Coflnet.Sky.BFCS.Services;
 public class SniperSocket : MinecraftSocket
@@ -356,6 +357,17 @@ public class SniperSocket : MinecraftSocket
         }, "handling command", 1);
     }
 
+    private bool SuppressNextDialog = false;
+    public override void Dialog(Func<SocketDialogBuilder, DialogBuilder> creation)
+    {
+        if(SuppressNextDialog)
+        {
+            SuppressNextDialog = false;
+            return;
+        }
+        base.Dialog(creation);
+    }
+
     private async Task HandleCommand(MessageEventArgs e)
     {
         using var activity = CreateActivity("ClientCommand", ConSpan);
@@ -377,7 +389,9 @@ public class SniperSocket : MinecraftSocket
         {
             try
             {
+                SuppressNextDialog = true;
                 await Commands[deserialized.type.ToLower()].Execute(this, deserialized.data);
+                SuppressNextDialog = false;
             }
             catch (Exception ex)
             {

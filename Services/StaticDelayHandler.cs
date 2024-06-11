@@ -73,7 +73,7 @@ public class StaticDelayHandler : IDelayHandler
         if (!sessionInfo.IsMacroBot && isDatacenterIp && CurrentDelay < TimeSpan.FromSeconds(0.1) && Random.Shared.NextDouble() < 0.8)
             await Task.Delay(TimeSpan.FromSeconds(4) - CurrentDelay).ConfigureAwait(false);
         else if (Random.Shared.NextDouble() < 0.1 * (sessionInfo.Purse == 0 ? 5 : 0.5)) // sampling dropout
-            await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(6)).ConfigureAwait(false);
         if (sessionInfo.IsMacroBot && flipInstance.Profit > 1_000_000)
             await Task.Delay(TimeSpan.FromMicroseconds(flipInstance.Profit / 20000 * 1.1)).ConfigureAwait(false);
         return DateTime.UtcNow;
