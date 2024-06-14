@@ -66,7 +66,7 @@ public class StaticDelayHandler : IDelayHandler
         // simple calculation
         if (flipInstance.Profit > 100_000_000)
             return DateTime.UtcNow;
-        if (IsLikelyBot(flipInstance) && Random.Shared.NextDouble() < 0.3)
+        if (IsLikelyBot(flipInstance))
             return DateTime.UtcNow;
         if (CurrentDelay > TimeSpan.Zero)
             await Task.Delay(CurrentDelay);
@@ -79,9 +79,16 @@ public class StaticDelayHandler : IDelayHandler
         return DateTime.UtcNow;
     }
 
+    /// <summary>
+    /// Flips that any bot would also find are not delayed
+    /// There is a 30% chance in the transition phase
+    /// </summary>
+    /// <param name="flipInstance"></param>
+    /// <returns></returns>
     public bool IsLikelyBot(FlipInstance flipInstance)
     {
-        return flipInstance.ProfitPercentage > 300 || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 10);
+        return flipInstance.ProfitPercentage > 300
+            || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 10) && Random.Shared.NextDouble() < 0.3;
     }
 
     public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime)
