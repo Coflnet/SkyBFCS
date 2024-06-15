@@ -195,7 +195,7 @@ public class SniperSocket : MinecraftSocket
     private Task HandleProxySettingsSync(Response deserialized)
     {
         var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
-        if (data.AccountInfo.Tier < AccountTier.PREMIUM_PLUS)
+        if (data.SessionInfo.SessionTier < AccountTier.PREMIUM_PLUS)
         {
             Dialog(db => db.Break.MsgLine("Sorry, your account does not have premium plus, redirecting back", null, "Prem+ is required for this service")
                 .CoflCommand<PurchaseCommand>($"{McColorCodes.GREEN}Click here to purchase Prem+", "prem+", "Start purchasing Prem+"));
