@@ -199,8 +199,6 @@ public class SniperSocket : MinecraftSocket
         {
             Dialog(db => db.Break.MsgLine("Sorry, your account does not have premium plus, redirecting back", null, "Prem+ is required for this service")
                 .CoflCommand<PurchaseCommand>($"{McColorCodes.GREEN}Click here to purchase Prem+", "prem+", "Start purchasing Prem+"));
-            var command = Response.Create("switchregion", "eu");
-            SendToServer(command);
             ExecuteCommand("/cofl start");
             Close();
             return Task.CompletedTask;
