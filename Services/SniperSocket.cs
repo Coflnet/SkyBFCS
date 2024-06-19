@@ -257,6 +257,10 @@ public class SniperSocket : MinecraftSocket
                 .CoflCommand<SetCommand>($"{McColorCodes.GREEN}Click here to disable that setting", "showseller false", "Disable to speed up flips"));
             settings.Visibility.Seller = false;
         }
+        if (sessionLifesycle.TierManager == null)
+            sessionLifesycle.TierManager = new StaticTierManager(data);
+        else
+            (sessionLifesycle.TierManager as StaticTierManager)?.Update(data);
         return Task.CompletedTask;
     }
 
@@ -360,7 +364,7 @@ public class SniperSocket : MinecraftSocket
     private bool SuppressNextDialog = false;
     public override void Dialog(Func<SocketDialogBuilder, DialogBuilder> creation)
     {
-        if(SuppressNextDialog)
+        if (SuppressNextDialog)
         {
             SuppressNextDialog = false;
             return;
