@@ -237,6 +237,7 @@ public class SniperSocket : MinecraftSocket
         var testFlip = BlacklistCommand.GetTestFlip("test");
         try
         {
+            previousSettings?.CancelCompilation();
             Activity.Current.Log($"Copying filter");
             settings.CopyListMatchers(sessionLifesycle.FlipSettings);
             Activity.Current.Log($"Copied matchers");
@@ -251,7 +252,6 @@ public class SniperSocket : MinecraftSocket
         }
         this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(settings);
         this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
-        previousSettings?.CancelCompilation();
         var dl = sessionLifesycle.DelayHandler as StaticDelayHandler;
         if (dl == null)
         {
