@@ -17,7 +17,7 @@ COPY . .
 RUN mkdir Mock && mkdir -p /app/Mock && cp /build/SkySniper/Mock/ Mock/ -r
 RUN dotnet test && dotnet publish -c release -o /app && rm /app/items.json
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/sdk:8.0
 WORKDIR /app
 
 COPY --from=build /app .
