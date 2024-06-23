@@ -78,7 +78,7 @@ public class SnipeUpdater : NewUpdater
         var result = await Task.WhenAll(queries.ToArray());
         pageToken.Cancel();
         // wait for other processing to finish before updating lbin
-        await Task.Delay(1000);
+        await Task.Delay(2000);
         sniper.FinishedUpdate();
         sniper.PrintLogQueue();
         return result.Max(a => a.Item1);
