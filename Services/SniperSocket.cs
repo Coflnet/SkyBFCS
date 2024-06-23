@@ -231,8 +231,9 @@ public class SniperSocket : MinecraftSocket
             settings.Visibility.Seller = false;
         }
         var previousSettings = sessionLifesycle.FlipSettings?.Value;
-        //FixFilter(settings.BlackList);
-        //FixFilter(settings.WhiteList);
+        Activity.Current.Log($"Fixing filters");
+        FixFilter(settings.BlackList);
+        FixFilter(settings.WhiteList);
         var testFlip = BlacklistCommand.GetTestFlip("test");
         try
         {
