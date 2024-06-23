@@ -342,11 +342,13 @@ public class SniperSocket : MinecraftSocket
 
     protected override void OnClose(CloseEventArgs e)
     {
+        WindingDown = true;
         var sniper = DiHandler.GetService<SniperService>();
         sniper.FoundSnipe -= SendSnipe;
         GetService<BfcsBackgroundService>().FoundSnipe -= SendSnipe;
         GetService<SnipeUpdater>().NewAuction -= UserFlip;
         clientSocket.Close();
+        services.Dispose();
         Console.WriteLine("error " + e.Reason);
         base.OnClose(e);
     }
