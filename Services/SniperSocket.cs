@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Coflnet.Sky.ModCommands.Services;
 using Microsoft.Extensions.Configuration;
 using Coflnet.Sky.ModCommands.Dialogs;
+using System.Diagnostics;
 
 namespace Coflnet.Sky.BFCS.Services;
 public class SniperSocket : MinecraftSocket
@@ -222,15 +223,24 @@ public class SniperSocket : MinecraftSocket
                     Dialog(db => db.Msg($"{item}:{Headers[item.ToString()]}"));
                 }
         }
-        sessionLifesycle.FlipSettings?.Value?.CancelCompilation();
         var settings = data.Settings;
-        FixFilter(settings.BlackList);
-        FixFilter(settings.WhiteList);
+        if (settings.Visibility.Seller)
+        {
+            Dialog(db => db.Break.MsgLine("You had seller name in your flip settings enabled, this does not work on the us-instance because would slow down flips", null, "Seller visibility is not allowed")
+                .CoflCommand<SetCommand>($"{McColorCodes.GREEN}Click here to disable that setting", "showseller false", "Disable to speed up flips"));
+            settings.Visibility.Seller = false;
+        }
+        var previousSettings = sessionLifesycle.FlipSettings?.Value;
+        //FixFilter(settings.BlackList);
+        //FixFilter(settings.WhiteList);
         var testFlip = BlacklistCommand.GetTestFlip("test");
         try
         {
+            Activity.Current.Log($"Copying filter");
             settings.CopyListMatchers(sessionLifesycle.FlipSettings);
+            Activity.Current.Log($"Copied matchers");
             settings.MatchesSettings(testFlip);
+            Activity.Current.Log($"Ran test flip");
         }
         catch (System.Exception)
         {
@@ -240,6 +250,7 @@ public class SniperSocket : MinecraftSocket
         }
         this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(settings);
         this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
+        previousSettings?.CancelCompilation();
         var dl = sessionLifesycle.DelayHandler as StaticDelayHandler;
         if (dl == null)
         {
@@ -249,12 +260,7 @@ public class SniperSocket : MinecraftSocket
         }
         else
             dl.CurrentDelay = TimeSpan.FromMilliseconds(data.ApproxDelay);
-        if (settings.Visibility.Seller)
-        {
-            Dialog(db => db.Break.MsgLine("You had seller name in your flip settings enabled, this does not work on the us-instance because would slow down flips", null, "Seller visibility is not allowed")
-                .CoflCommand<SetCommand>($"{McColorCodes.GREEN}Click here to disable that setting", "showseller false", "Disable to speed up flips"));
-            settings.Visibility.Seller = false;
-        }
+        Activity.Current.Log($"Set delay");
         if (sessionLifesycle.TierManager == null)
             sessionLifesycle.TierManager = new StaticTierManager(data);
         else
