@@ -55,7 +55,7 @@ namespace Coflnet.Sky.BFCS.Services
                 // load again in case the main instance didn't have all items at the time
                 await externalLoader.Load();
             }).ConfigureAwait(false);
-            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // give other services time to load
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken); // give other services time to load
             await DoFullUpdate(stoppingToken);
             logger.LogInformation("Init: done full update");
 
