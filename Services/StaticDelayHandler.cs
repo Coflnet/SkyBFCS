@@ -17,6 +17,7 @@ public class StaticDelayHandler : IDelayHandler
     public event Action<TimeSpan> OnDelayChange;
     IMinecraftSocket socket;
     public bool isDatacenterIp { get; private set; }
+    Random userRandom;
 
     public StaticDelayHandler(TimeSpan currentDelay, SessionInfo sessionInfo, string clientIP)
     {
@@ -25,6 +26,7 @@ public class StaticDelayHandler : IDelayHandler
         if (clientIP == null)
             return;
         isDatacenterIp = IsDatacenter(clientIP);
+        userRandom = new Random(sessionInfo.McUuid.GetHashCode());
     }
 
     private bool IsDatacenter(string clientIP)
@@ -70,9 +72,9 @@ public class StaticDelayHandler : IDelayHandler
             return DateTime.UtcNow;
         if (CurrentDelay > TimeSpan.Zero)
             await Task.Delay(CurrentDelay);
-        if (!sessionInfo.IsMacroBot && isDatacenterIp && CurrentDelay < TimeSpan.FromSeconds(0.1) && Random.Shared.NextDouble() < 0.8)
+        if (!sessionInfo.IsMacroBot && isDatacenterIp && CurrentDelay < TimeSpan.FromSeconds(0.1) && userRandom.NextDouble() < 0.8)
             await Task.Delay(TimeSpan.FromSeconds(4) - CurrentDelay).ConfigureAwait(false);
-        else if (Random.Shared.NextDouble() < 0.1 * (sessionInfo.Purse == 0 ? 5 : 0.5)) // sampling dropout
+        else if (userRandom.NextDouble() < 0.1 * (sessionInfo.Purse == 0 ? 5 : 0.5)) // sampling dropout
             await Task.Delay(TimeSpan.FromSeconds(6)).ConfigureAwait(false);
         if (sessionInfo.IsMacroBot && flipInstance.Profit > 1_000_000)
             await Task.Delay(TimeSpan.FromMilliseconds(flipInstance.Profit / 1_000_000 * 55)).ConfigureAwait(false);
@@ -88,8 +90,7 @@ public class StaticDelayHandler : IDelayHandler
     public bool IsLikelyBot(FlipInstance flipInstance)
     {
         return flipInstance.ProfitPercentage > 300
-            || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 10) && Random.Shared.NextDouble() < 0.3
-            || flipInstance.Volume > 40;
+            || (flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 10) || flipInstance.Volume > 40) && userRandom.NextDouble() < 0.2;
     }
 
     public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime)
