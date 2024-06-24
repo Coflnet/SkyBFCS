@@ -223,34 +223,6 @@ public class SniperSocket : MinecraftSocket
                     Dialog(db => db.Msg($"{item}:{Headers[item.ToString()]}"));
                 }
         }
-        var settings = data.Settings;
-        if (settings.Visibility.Seller)
-        {
-            Dialog(db => db.Break.MsgLine("You had seller name in your flip settings enabled, this does not work on the us-instance because would slow down flips", null, "Seller visibility is not allowed")
-                .CoflCommand<SetCommand>($"{McColorCodes.GREEN}Click here to disable that setting", "showseller false", "Disable to speed up flips"));
-            settings.Visibility.Seller = false;
-        }
-        var previousSettings = sessionLifesycle.FlipSettings?.Value;
-        Activity.Current.Log($"Fixing filters");
-        FixFilter(settings.BlackList);
-        FixFilter(settings.WhiteList);
-        var testFlip = BlacklistCommand.GetTestFlip("test");
-        try
-        {
-            previousSettings?.CancelCompilation();
-            Activity.Current.Log($"Copying filter");
-            settings.CopyListMatchers(sessionLifesycle.FlipSettings);
-            Activity.Current.Log($"Copied matchers");
-            settings.MatchesSettings(testFlip);
-            Activity.Current.Log($"Ran test flip");
-        }
-        catch (System.Exception)
-        {
-            sessionLifesycle.CheckListValidity(testFlip, settings.BlackList);
-            sessionLifesycle.CheckListValidity(testFlip, settings.WhiteList, true);
-            return Task.CompletedTask;
-        }
-        this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(settings);
         this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
         var dl = sessionLifesycle.DelayHandler as StaticDelayHandler;
         if (dl == null)
@@ -266,7 +238,49 @@ public class SniperSocket : MinecraftSocket
             sessionLifesycle.TierManager = new StaticTierManager(data);
         else
             (sessionLifesycle.TierManager as StaticTierManager)?.Update(data);
+
+        UpdateSettings(data);
         return Task.CompletedTask;
+    }
+
+    private void UpdateSettings(ProxyReqSyncCommand.Format data)
+    {
+        var settings = data.Settings;
+        if (settings.Visibility.Seller)
+        {
+            Dialog(db => db.Break.MsgLine("You had seller name in your flip settings enabled, this does not work on the us-instance because would slow down flips", null, "Seller visibility is not allowed")
+                .CoflCommand<SetCommand>($"{McColorCodes.GREEN}Click here to disable that setting", "showseller false", "Disable to speed up flips"));
+            settings.Visibility.Seller = false;
+        }
+        var previousSettings = sessionLifesycle.FlipSettings?.Value;
+        Activity.Current.Log($"Fixing filters");
+        FixFilter(settings.BlackList);
+        FixFilter(settings.WhiteList);
+        var changed = previousSettings == null || JsonConvert.SerializeObject(settings) != JsonConvert.SerializeObject(previousSettings);
+        if (!changed)
+        {
+            Console.WriteLine("settings not changed");
+            Activity.Current.Log($"Settings not changed");
+            return;
+        }
+        Activity.Current.Log($"Settings changed {JsonConvert.SerializeObject(settings.WhiteList).Truncate(100)} {JsonConvert.SerializeObject(previousSettings.WhiteList).Truncate(100)}");
+        var testFlip = BlacklistCommand.GetTestFlip("test");
+        try
+        {
+            previousSettings?.CancelCompilation();
+            Activity.Current.Log($"Copying filter");
+            settings.CopyListMatchers(sessionLifesycle.FlipSettings);
+            Activity.Current.Log($"Copied matchers");
+            settings.MatchesSettings(testFlip);
+            Activity.Current.Log($"Ran test flip");
+        }
+        catch (System.Exception)
+        {
+            sessionLifesycle.CheckListValidity(testFlip, settings.BlackList);
+            sessionLifesycle.CheckListValidity(testFlip, settings.WhiteList, true);
+            return;
+        }
+        this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(settings);
     }
 
     private void UserFlip(SaveAuction obj)
