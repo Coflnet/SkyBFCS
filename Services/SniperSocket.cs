@@ -263,7 +263,7 @@ public class SniperSocket : MinecraftSocket
             Activity.Current.Log($"Settings not changed");
             return;
         }
-        Activity.Current.Log($"Settings changed {JsonConvert.SerializeObject(settings.WhiteList).Truncate(100)} {JsonConvert.SerializeObject(previousSettings.WhiteList).Truncate(100)}");
+        Activity.Current.Log($"Settings changed {JsonConvert.SerializeObject(settings.WhiteList).Truncate(100)} {JsonConvert.SerializeObject(previousSettings?.WhiteList).Truncate(100)}");
         var testFlip = BlacklistCommand.GetTestFlip("test");
         try
         {
