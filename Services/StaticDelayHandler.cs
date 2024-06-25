@@ -18,6 +18,7 @@ public class StaticDelayHandler : IDelayHandler
     IMinecraftSocket socket;
     public bool isDatacenterIp { get; private set; }
     Random userRandom;
+    int skipOn = 0;
 
     public StaticDelayHandler(TimeSpan currentDelay, SessionInfo sessionInfo, string clientIP)
     {
@@ -90,11 +91,13 @@ public class StaticDelayHandler : IDelayHandler
     public bool IsLikelyBot(FlipInstance flipInstance)
     {
         return flipInstance.ProfitPercentage > 300
-            || (flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 10) || flipInstance.Volume > 40) && userRandom.NextDouble() < 0.2;
+            || (flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 10) || flipInstance.Volume > 40) && flipInstance.Auction.UId % 5 == skipOn;
     }
 
     public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime)
     {
+        skipOn = userRandom.Next(0, 5);
+        Console.WriteLine($"Updated delay, now skipping {skipOn}");
         // nothing todo, gets set by the socket
         return Task.FromResult(new DelayHandler.Summary() { VerifiedMc = true, Penalty = CurrentDelay });
     }
