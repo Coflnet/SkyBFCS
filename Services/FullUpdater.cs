@@ -15,9 +15,9 @@ namespace Coflnet.Sky.BFCS.Services
 {
     public class FullUpdater : Updater.Updater
     {
-        SniperService sniper;
-        ActiveUpdater activeUpdater;
-        ILogger<FullUpdater> logger;
+        readonly SniperService sniper;
+        readonly ActiveUpdater activeUpdater;
+        readonly ILogger<FullUpdater> logger;
 
         public FullUpdater(SniperService sniper, ActiveUpdater activeUpdater, ILogger<FullUpdater> logger, ActivitySource activitySource)
             : base(null, new MockSkinHandler(), activitySource, null)
@@ -67,7 +67,7 @@ namespace Coflnet.Sky.BFCS.Services
                             return;
                         await activeUpdater.ProcessSumary(sum);
                     }
-                    catch (System.Exception e)
+                    catch (Exception e)
                     {
                         logger.LogError(e, "Error processing sumary");
                     }
