@@ -123,7 +123,7 @@ public class SniperSocket : MinecraftSocket
                 await UpdateFilterData(deserialized);
                 break;
             case "loggedIn":
-                var command = Response.Create("ProxyReqSync", 0);
+                var command = Response.Create("ProxyReqSync", ConSpan?.Context.TraceId);
                 SendToServer(command);
                 SendMessage("Special test sniper connected to main instance, requesting account info");
                 break;
