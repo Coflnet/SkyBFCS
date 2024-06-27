@@ -204,7 +204,7 @@ public class SniperSocket : MinecraftSocket
             Close();
             return Task.CompletedTask;
         }
-        this.SessionInfo = SelfUpdatingValue<SessionInfo>.CreateNoUpdate(data.SessionInfo);
+        SessionInfo = data.SessionInfo;
         if (this.sessionLifesycle == null)
         {
             sessionLifesycle = new ModSessionLifesycle(this)
@@ -273,6 +273,7 @@ public class SniperSocket : MinecraftSocket
             Activity.Current.Log($"Copied matchers");
             settings.MatchesSettings(testFlip);
             Activity.Current.Log($"Ran test flip");
+            settings.PlayerInfo = SessionInfo;
         }
         catch (System.Exception)
         {
