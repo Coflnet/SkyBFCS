@@ -56,7 +56,7 @@ namespace Coflnet.Sky.BFCS.Services
         private async Task LoadCraftCost()
         {
             logger.LogInformation("Loading craft cost");
-            var crafts = await api.ApiSniperDumpCraftCostGetAsync(config["SNIPER_TRANSFER_TOKEN"]);
+            var crafts = await api.ApiSniperDumpCraftCostGetAsync();
             foreach (var item in crafts)
             {
                 craftCostService.Costs[item.Key] = item.Value;
@@ -92,7 +92,7 @@ namespace Coflnet.Sky.BFCS.Services
             {
                 return await internalLoad;
             }
-            var data = (await api.ApiSniperLookupGroupGroupIdGetAsync(groupId, config["SNIPER_TRANSFER_TOKEN"])).Trim('"');
+            var data = (await api.ApiSniperLookupGroupGroupIdGetAsync(groupId)).Trim('"');
             if (data == null)
                 throw new Exception("No data found " + groupId);
             var bytes = Convert.FromBase64String(data);
