@@ -17,8 +17,8 @@ public class StaticTierManager : IAccountTierManager
 
     public void Update(ProxyReqSyncCommand.Format data)
     {
-        this.tier = data.SessionInfo.SessionTier;
-        this.expiresAt = data.AccountInfo.ExpiresAt;
+        tier = data.SessionInfo.SessionTier;
+        expiresAt = data.AccountInfo.ExpiresAt;
     }
 
     public DateTime ExpiresAt => expiresAt;
