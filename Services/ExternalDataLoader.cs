@@ -43,8 +43,8 @@ namespace Coflnet.Sky.BFCS.Services
                 {
                     await LoadItemData(id);
                 });
-                await LoadCraftCost();
                 sniper.State = SniperState.Ready;
+                await LoadCraftCost();
                 logger.LogInformation("done loading external data");
             }
             catch (Exception e)
