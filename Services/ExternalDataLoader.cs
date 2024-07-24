@@ -43,8 +43,8 @@ namespace Coflnet.Sky.BFCS.Services
                 {
                     await LoadItemData(id);
                 });
-                sniper.State = SniperState.Ready;
                 await LoadCraftCost();
+                sniper.State = SniperState.Ready;
                 logger.LogInformation("done loading external data");
             }
             catch (Exception e)
@@ -56,7 +56,7 @@ namespace Coflnet.Sky.BFCS.Services
         private async Task LoadCraftCost()
         {
             logger.LogInformation("Loading craft cost");
-            var crafts = await api.ApiSniperDumpCraftCostGetAsync();
+            var crafts = await api.ApiSniperCraftCostGetAsync();
             foreach (var item in crafts)
             {
                 craftCostService.Costs[item.Key] = item.Value;
