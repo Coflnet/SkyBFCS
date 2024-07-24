@@ -45,7 +45,7 @@ public class SniperSocket : MinecraftSocket
     }
     public SniperSocket()
     {
-        ConSpan = this.CreateActivity("SniperSocket");
+        ConSpan = CreateActivity("SniperSocket");
         ServiceCollection services = new ServiceCollection();
         services.AddSingleton<IMinecraftSocket>(this);
         services.AddSingleton(this);
@@ -150,9 +150,10 @@ public class SniperSocket : MinecraftSocket
             case "ping":
             case "countdown":
                 Send(ev.Data);
-                if (this.sessionLifesycle != null)
+                if (sessionLifesycle != null)
                 {
-                    this.sessionLifesycle.HouseKeeping();
+                    sessionLifesycle.HouseKeeping();
+                    await sessionLifesycle.DelayHandler.Update(SessionInfo.MinecraftUuids, SessionInfo.LastCaptchaSolve);
                 }
                 break;
             case "stop":
@@ -210,7 +211,7 @@ public class SniperSocket : MinecraftSocket
             return Task.CompletedTask;
         }
         SessionInfo = data.SessionInfo;
-        if (this.sessionLifesycle == null)
+        if (sessionLifesycle == null)
         {
             sessionLifesycle = new ModSessionLifesycle(this)
             {
@@ -228,11 +229,11 @@ public class SniperSocket : MinecraftSocket
                     Dialog(db => db.Msg($"{item}:{Headers[item.ToString()]}"));
                 }
         }
-        this.sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
+        sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
         var dl = sessionLifesycle.DelayHandler as StaticDelayHandler;
         if (dl == null)
         {
-            sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay), this.SessionInfo, this.ClientIp);
+            sessionLifesycle.DelayHandler = new StaticDelayHandler(TimeSpan.FromMilliseconds(data.ApproxDelay), SessionInfo, ClientIp);
             var extended = new ExtendedSpamController(f => IsReceived(f.Uuid));
             sessionLifesycle.FlipProcessor = new FlipProcesser(this, extended, sessionLifesycle.DelayHandler);
         }
@@ -285,7 +286,7 @@ public class SniperSocket : MinecraftSocket
             sessionLifesycle.CheckListValidity(testFlip, settings.WhiteList, true);
             return;
         }
-        this.sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(settings);
+        sessionLifesycle.FlipSettings = SelfUpdatingValue<FlipSettings>.CreateNoUpdate(settings);
     }
 
     private void UserFlip(SaveAuction obj)
