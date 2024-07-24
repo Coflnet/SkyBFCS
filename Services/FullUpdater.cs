@@ -79,7 +79,7 @@ namespace Coflnet.Sky.BFCS.Services
             });
         }
 
-        public override void AddSoldAuctions(IEnumerable<SaveAuction> auctionsToAdd, Activity span)
+        public override void AddSoldAuctions(List<SaveAuction> auctionsToAdd, Activity span)
         {
             foreach (var item in auctionsToAdd)
             {
