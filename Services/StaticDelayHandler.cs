@@ -13,6 +13,7 @@ public class StaticDelayHandler : IDelayHandler
     public TimeSpan CurrentDelay { get; set; }
     public TimeSpan MacroDelay => default;
     private readonly SessionInfo sessionInfo;
+    private HashSet<string> highCompetitionKeys = [" Any [exp, 6] EPIC 1"];
 
     public event Action<TimeSpan> OnDelayChange;
     IMinecraftSocket socket;
@@ -91,7 +92,12 @@ public class StaticDelayHandler : IDelayHandler
     public bool IsLikelyBot(FlipInstance flipInstance)
     {
         return (flipInstance.ProfitPercentage > 300
-            || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 10) || flipInstance.Volume > 40) && flipInstance.Auction.UId % 5 == skipOn;
+            || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 10) || flipInstance.Volume >= 40 || IsHighCompetitionKey(flipInstance)) && flipInstance.Auction.UId % 5 == skipOn;
+    }
+
+    private bool IsHighCompetitionKey(FlipInstance flipInstance)
+    {
+        return flipInstance.Context != null && highCompetitionKeys.Contains(flipInstance.Context.GetValueOrDefault("key", "nope")) && flipInstance.Volume > 10;
     }
 
     public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime)
