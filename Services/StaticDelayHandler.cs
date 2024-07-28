@@ -13,7 +13,7 @@ public class StaticDelayHandler : IDelayHandler
     public TimeSpan CurrentDelay { get; set; }
     public TimeSpan MacroDelay => default;
     private readonly SessionInfo sessionInfo;
-    private HashSet<string> highCompetitionKeys = [" Any [exp, 6] EPIC 1"];
+    private HashSet<string> highCompetitionKeys = [" Any [exp, 6] EPIC 1", " Any [exp, 6] LEGENDARY 1", " Any [candyUsed, 0],[exp, 0] LEGENDARY 1"];
 
     public event Action<TimeSpan> OnDelayChange;
     IMinecraftSocket socket;
