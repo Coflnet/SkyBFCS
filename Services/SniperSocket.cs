@@ -375,7 +375,7 @@ public class SniperSocket : MinecraftSocket
         GetService<BfcsBackgroundService>().FoundSnipe -= SendSnipe;
         GetService<SnipeUpdater>().NewAuction -= UserFlip;
         clientSocket.Close();
-        Console.WriteLine("error " + e.Reason);
+        Console.WriteLine("close error " + e?.Reason);
         base.OnClose(e);
         services.Dispose();
     }
