@@ -337,7 +337,7 @@ public class SniperSocket : MinecraftSocket
             {
                 snipe.Auction.Context["cname"] = name + McColorCodes.GRAY + "-us";
             }
-            if (await SendFlip(snipe))
+            if (!await SendFlip(snipe))
                 Console.WriteLine($"sending failed :( {snipe.Auction.Uuid} on {ConSpan?.Context.TraceId}");
             else if (snipe.TargetPrice - snipe.Auction.StartingBid > 10_000_000)
                 Console.WriteLine($"sent {snipe.Auction.Uuid} to {SessionInfo?.McUuid}");
