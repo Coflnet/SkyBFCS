@@ -18,6 +18,7 @@ using Coflnet.Sky.Commands.Shared;
 using Coflnet.Sky.ModCommands.Services;
 using Coflnet.Sky.Core.Services;
 using System.Net.Http;
+using Coflnet.Sky.Commands.MC;
 
 namespace Coflnet.Sky.BFCS
 {
@@ -85,6 +86,8 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<ICraftCostService, CraftCostService>();
             services.AddSingleton<IIsSold, NeverIsSoldService>();
             services.AddSingleton<ITutorialService, NothingTutorialService>();
+            services.AddSingleton<DelayExemptionList>();
+            services.AddSingleton<IDelayExemptList>(sp=>sp.GetRequiredService<DelayExemptionList>());
             services.AddCoflService();
         }
 

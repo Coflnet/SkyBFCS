@@ -118,6 +118,9 @@ public class SniperSocket : MinecraftSocket
             case "filterData":
                 await UpdateFilterData(deserialized);
                 break;
+            case "exemptKeys":
+                await UpdateExemptKeys(deserialized);
+                break;
             case "loggedIn":
                 var command = Response.Create("ProxyReqSync", ConSpan?.Context.TraceId);
                 SendToServer(command);
@@ -167,6 +170,11 @@ public class SniperSocket : MinecraftSocket
                 break;
         }
         await Task.Delay(0);
+    }
+
+    private async Task UpdateExemptKeys(Response deserialized)
+    {
+        GetService<DelayExemptionList>().Exemptions = JsonConvert.DeserializeObject<HashSet<(string,string)>>(deserialized.data);
     }
 
     public void SendToServer(Response command)
