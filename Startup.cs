@@ -86,8 +86,7 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<ICraftCostService, CraftCostService>();
             services.AddSingleton<IIsSold, NeverIsSoldService>();
             services.AddSingleton<ITutorialService, NothingTutorialService>();
-            services.AddSingleton<DelayExemptionList>();
-            services.AddSingleton<IDelayExemptList>(sp=>sp.GetRequiredService<DelayExemptionList>());
+            services.AddSingleton<IDelayExemptList>();
             services.AddCoflService();
         }
 

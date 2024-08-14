@@ -174,7 +174,7 @@ public class SniperSocket : MinecraftSocket
 
     private async Task UpdateExemptKeys(Response deserialized)
     {
-        GetService<DelayExemptionList>().Exemptions = JsonConvert.DeserializeObject<HashSet<(string,string)>>(deserialized.data);
+        GetService<IDelayExemptList>().Exemptions = JsonConvert.DeserializeObject<HashSet<(string,string)>>(deserialized.data);
     }
 
     public void SendToServer(Response command)
