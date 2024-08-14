@@ -5,14 +5,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using Coflnet.Sky.Commands.MC;
 
 namespace Coflnet.Sky.BFCS.Services;
 
 public class BfcsBackgroundService(
     IServiceScopeFactory scopeFactory,
     IConfiguration config,
-    ILogger<ModBackgroundService> logger) 
-    : ModBackgroundService(scopeFactory, config, logger, null, null)
+    ILogger<ModBackgroundService> logger, IDelayExemptList exemptList) 
+    : ModBackgroundService(scopeFactory, config, logger, null, null, exemptList)
 {
     public event Action<LowPricedAuction> FoundSnipe;
 
