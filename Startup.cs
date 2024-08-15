@@ -44,7 +44,7 @@ namespace Coflnet.Sky.BFCS
                 c.IncludeXmlComments(xmlPath);
             });
 
-           // services.AddHostedService<UpdaterService>();
+            services.AddHostedService<UpdaterService>();
             services.AddJaeger(Configuration, 1);
             services.AddSingleton<SniperService>();
             services.AddSingleton<ITokenService, Sniper.Services.TokenService>();
