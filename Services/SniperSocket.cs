@@ -174,7 +174,7 @@ public class SniperSocket : MinecraftSocket
 
     private async Task UpdateExemptKeys(Response deserialized)
     {
-        GetService<IDelayExemptList>().Exemptions = JsonConvert.DeserializeObject<HashSet<(string,string)>>(deserialized.data);
+        GetService<IDelayExemptList>().Exemptions = JsonConvert.DeserializeObject<HashSet<(string, string)>>(deserialized.data);
     }
 
     public void SendToServer(Response command)
@@ -367,6 +367,10 @@ public class SniperSocket : MinecraftSocket
     {
         if (uuid == null)
             return false;
+        if(SessionInfo.IsDebug)
+        {
+            return false;
+        }
         if (flipUuidsSent.Contains(uuid))
             return true;
         flipUuidsSent.Enqueue(uuid);
