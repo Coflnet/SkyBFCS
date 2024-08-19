@@ -19,6 +19,8 @@ namespace Coflnet.Sky.BFCS
                 e.Response.StatusCode = 204;
                 return Task.CompletedTask;
             };
+            server.Log.Level = WebSocketSharp.LogLevel.Debug;
+            server.Log.Output = (data, s) => System.Console.WriteLine("ws:" + data);
             server.Start();
             CreateHostBuilder(args).Build().Run();
         }
