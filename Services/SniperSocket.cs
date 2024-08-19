@@ -122,7 +122,7 @@ public class SniperSocket : MinecraftSocket
                 await UpdateExemptKeys(deserialized);
                 break;
             case "loggedIn":
-                var command = Response.Create("ProxyReqSync", ConSpan?.Context.TraceId);
+                var command = Response.Create("ProxyReqSync", ConSpan?.Context.TraceId.ToString());
                 SendToServer(command);
                 SendMessage("Special test sniper connected to main instance, requesting account info");
                 break;
