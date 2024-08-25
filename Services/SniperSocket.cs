@@ -313,6 +313,7 @@ public class SniperSocket : MinecraftSocket
     {
         var filterEngine = DiHandler.GetService<Filter.FilterEngine>();
         var Lookup = filterEngine.AvailableFilters.ToLookup(a => a.Name);
+        var caseInvariantLookup = filterEngine.AvailableFilters.ToLookup(a => a.Name.ToLower());
         foreach (var elem in list)
         {
             var dict = elem.filter;
@@ -330,6 +331,10 @@ public class SniperSocket : MinecraftSocket
                 {
                     dict.Add(newKey, dict[item]);
                     dict.Remove(item);
+                }
+                else
+                {
+                    Console.WriteLine($"Could not correct filter {item}");
                 }
             }
         }
@@ -367,7 +372,7 @@ public class SniperSocket : MinecraftSocket
     {
         if (uuid == null)
             return false;
-        if(SessionInfo.IsDebug)
+        if (SessionInfo.IsDebug)
         {
             return false;
         }
@@ -414,6 +419,7 @@ public class SniperSocket : MinecraftSocket
     private async Task HandleCommand(MessageEventArgs e)
     {
         using var activity = CreateActivity("ClientCommand", ConSpan);
+        activity.Log(e.Data.Truncate(50));
         var deserialized = JsonConvert.DeserializeObject<Response>(e.Data);
         if (TryLocalFirst.ContainsKey(deserialized.type.ToLower()))
         {
