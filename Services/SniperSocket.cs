@@ -312,8 +312,8 @@ public class SniperSocket : MinecraftSocket
     private static void FixFilter(List<ListEntry> list)
     {
         var filterEngine = DiHandler.GetService<Filter.FilterEngine>();
-        var Lookup = filterEngine.AvailableFilters.ToLookup(a => a.Name);
-        var caseInvariantLookup = filterEngine.AvailableFilters.ToLookup(a => a.Name.ToLower());
+        var Lookup = FlipFilter.AllFilters.ToLookup(a => a);
+        var caseInvariantLookup = FlipFilter.AllFilters.ToLookup(a => a.ToLower());
         foreach (var elem in list)
         {
             var dict = elem.filter;
