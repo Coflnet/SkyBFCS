@@ -80,7 +80,7 @@ namespace Coflnet.Sky.BFCS
             services.AddSingleton<IIsSold, IsSoldMock>();
             services.AddSingleton<HypixelItemService>();
             services.AddSingleton<BfcsBackgroundService>();
-            services.AddSingleton<IAttributeFlipService, AttributeFlipService>();
+            services.AddSingleton<IAttributeFlipService, MockIAttributeFlipService>();
             services.AddSingleton<HttpClient>();
             services.AddSingleton<SnipeUpdater>();
             services.AddSingleton<ICraftCostService, CraftCostService>();
