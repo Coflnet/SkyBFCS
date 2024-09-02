@@ -342,6 +342,8 @@ public class SniperSocket : MinecraftSocket
 
     private void SendSnipe(LowPricedAuction snipe)
     {
+        if (snipe.TargetPrice - snipe.Auction.StartingBid < 1_000_000)
+            return; // not interesting
         TryAsyncTimes(async () =>
         {
             if (snipe?.Auction?.Context == null || Settings == null || snipe.TargetPrice - snipe.Auction.StartingBid < Settings.MinProfit)
