@@ -55,7 +55,9 @@ namespace Coflnet.Sky.BFCS
             if (Configuration["MINIO_SECRET"] != null)
                 services.AddSingleton<IPersitanceManager, S3PersistanceManager>();
             else
-                services.AddSingleton<IPersitanceManager, ExternalPeristenceManager>(s => new());
+            {
+                throw new Exception($"No persistance manager configured `{Configuration["MINIO_SECRET"]?.Truncate(3)}`");
+            }
             services.AddSingleton<IConnectionMultiplexer>(provider =>
             {
                 var logger = provider.GetRequiredService<ILogger<Startup>>();
