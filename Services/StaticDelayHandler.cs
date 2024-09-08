@@ -28,21 +28,7 @@ public class StaticDelayHandler : IDelayHandler
         this.sessionInfo = sessionInfo;
         if (clientIP == null)
             return;
-        isDatacenterIp = IsDatacenter(clientIP);
         userRandom = new Random(sessionInfo.McUuid.GetHashCode());
-    }
-
-    private bool IsDatacenter(string clientIP)
-    {
-        uint addressAsInt = BitConverter.ToUInt32(IPAddress.Parse(clientIP).GetAddressBytes().Reverse().ToArray(), 0);
-        string[] ipRanges = ["107.152.32.0/20", "130.51.22.0/24"];
-        foreach (var item in ipRanges)
-        {
-            (uint lower, uint upper) = GetIpRange(item);
-            if (lower < addressAsInt && addressAsInt < upper)
-                return true;
-        }
-        return false;
     }
 
     public (uint lower, uint upper) GetIpRange(string mask)
