@@ -70,6 +70,14 @@ public class SniperSocket : MinecraftSocket
         var args = QueryString;
         var x = System.Web.HttpUtility.ParseQueryString("");
         Console.WriteLine(QueryString.ToString());
+        try
+        {
+            clientSocket?.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("client close error " + e);
+        }
         clientSocket = new WebSocket(GetService<IConfiguration>()["SOCKET_BASE_URL"] + "/modsocket?" + QueryString + "&type=us-proxy&ip=" + ClientIp);
         span.Log("Connecting to " + clientSocket.Url);
         clientSocket.OnMessage += (s, ev) =>
