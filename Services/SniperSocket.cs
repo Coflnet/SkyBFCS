@@ -66,10 +66,12 @@ public class SniperSocket : MinecraftSocket
 
     private void ConnectClient()
     {
+        using var span = CreateActivity("connecting", ConSpan);
         var args = QueryString;
         var x = System.Web.HttpUtility.ParseQueryString("");
         Console.WriteLine(QueryString.ToString());
         clientSocket = new WebSocket(GetService<IConfiguration>()["SOCKET_BASE_URL"] + "/modsocket?" + QueryString + "&type=us-proxy&ip=" + ClientIp);
+        span.Log("Connecting to " + clientSocket.Url);
         clientSocket.OnMessage += (s, ev) =>
         {
             TryAsyncTimes(async () =>
