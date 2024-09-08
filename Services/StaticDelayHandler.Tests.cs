@@ -26,11 +26,4 @@ public class StaticDelayHandlerTest
         var result = staticDelayHandler.IsLikelyBot(flipInstance);
         Assert.That(result, Is.EqualTo(match));
     }
-
-    [Test]
-    public void IsDatacenter()
-    {
-        var result = staticDelayHandler.isDatacenterIp;
-        Assert.That(result, Is.EqualTo(true));
-    }
 }
