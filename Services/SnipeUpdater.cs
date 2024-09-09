@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 using System.Diagnostics;
+using Prometheus;
 
 namespace Coflnet.Sky.BFCS.Services;
 public class SnipeUpdater : NewUpdater
@@ -18,8 +19,10 @@ public class SnipeUpdater : NewUpdater
     // protected override string ApiBaseUrl => "https://localhost:7013";
     Channel<Element> newAuctions;
     public event Action<SaveAuction> NewAuction;
+    public HashSet<string> LowValueItems = new();
     public event Action UpdateProcessed;
     private int coreCount;
+    Counter lowValueSkipped = Metrics.CreateCounter("sky_bfcs_low_value_skipped", "Number of low value items skipped");
 
     public SnipeUpdater(SniperService sniper) : base(Updater.Updater.activitySource, null)
     {
@@ -45,6 +48,11 @@ public class SnipeUpdater : NewUpdater
                     if (!next.auction.BuyItNow)
                         continue;
                     var a = Updater.Updater.ConvertAuction(next.auction, next.lastUpdated);
+                    if (LowValueItems.Contains(a.Tag))
+                    {
+                        lowValueSkipped.Inc();
+                        continue;
+                    }
                     a.Context["upage"] = next.pageId.ToString();
                     a.Context["utry"] = next.tryCount.ToString();
                     sniper.TestNewAuction(a);

@@ -8,6 +8,8 @@ using StackExchange.Redis;
 using Microsoft.Extensions.Logging;
 using System.Threading.Channels;
 using Prometheus;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Coflnet.Sky.BFCS.Services
 {
@@ -146,6 +148,7 @@ namespace Coflnet.Sky.BFCS.Services
         private async Task RefreshAllMedians()
         {
             logger.LogInformation("Refreshing all medians");
+            var lowValueItems = new HashSet<string>();
             foreach (var item in sniper.Lookups)
             {
                 foreach (var bucket in item.Value.Lookup)
@@ -156,8 +159,13 @@ namespace Coflnet.Sky.BFCS.Services
                     sniper.UpdateMedian(bucket.Value, (item.Key, sniper.GetBreakdownKey(bucket.Key, item.Key)));
                 }
                 await Task.Delay(5); // prevent blocking the thread
+                if (item.Value.Lookup.All(l => l.Value.Price < 1_000_000))
+                {
+                    lowValueItems.Add(item.Key);
+                }
             }
-            logger.LogInformation("Done refreshing all medians");
+            updater.LowValueItems = lowValueItems;
+            logger.LogInformation("Done refreshing all medians, low value are {lowValueItems}", string.Join(", ", lowValueItems));
         }
     }
 }
