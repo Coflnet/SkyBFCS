@@ -20,7 +20,7 @@ public class StaticDelayHandler : IDelayHandler
     public bool isDatacenterIp { get; private set; }
     Random userRandom;
     int skipOn = 0;
-    private static readonly int SkipGroups = 10;
+    private static readonly int SkipGroups = 8;
 
     public StaticDelayHandler(TimeSpan currentDelay, SessionInfo sessionInfo, string clientIP)
     {
