@@ -159,8 +159,8 @@ namespace Coflnet.Sky.BFCS.Services
                     sniper.UpdateMedian(bucket.Value, (item.Key, sniper.GetBreakdownKey(bucket.Key, item.Key)));
                 }
                 await Task.Delay(5); // prevent blocking the thread
-                if (item.Value.Lookup.All(l => l.Value.Price < 1_000_000))
-                {
+                if (item.Value.Lookup.All(l => l.Value.Price < 3_000_000))
+                { // can't be more than 3m profit (usually minprofit) if the median is lower than that
                     lowValueItems.Add(item.Key);
                 }
             }
