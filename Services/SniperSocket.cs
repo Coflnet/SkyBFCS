@@ -350,10 +350,23 @@ public class SniperSocket : MinecraftSocket
         }
     }
 
-    private void SendSnipe(LowPricedAuction snipe)
+    private void SendSnipe(LowPricedAuction lp)
     {
-        if (snipe.TargetPrice - snipe.Auction.StartingBid < 1_000_000)
+        if (lp.TargetPrice - lp.Auction.StartingBid < 1_000_000)
             return; // not interesting
+        if (!lp.Auction.Context.TryGetValue("csh", out string name))
+        {
+            lp.Auction.Context["csh"] = (DateTime.UtcNow - lp.Auction.FindTime).ToString();
+        }
+        var snipe = new LowPricedAuction()
+        {
+            AdditionalProps = lp.AdditionalProps == null ? [] : new Dictionary<string, string>(lp.AdditionalProps),
+            Auction = lp.Auction,
+            DailyVolume = lp.DailyVolume,
+            Finder = lp.Finder,
+            TargetPrice = lp.TargetPrice
+        };
+        snipe.AdditionalProps["da"] = (DateTime.UtcNow - snipe.Auction.FindTime).ToString();
         TryAsyncTimes(async () =>
         {
             if (snipe?.Auction?.Context == null || Settings == null || snipe.TargetPrice - snipe.Auction.StartingBid < Settings.MinProfit)
@@ -362,6 +375,7 @@ public class SniperSocket : MinecraftSocket
             {
                 snipe.Auction.Context["cname"] = name + McColorCodes.GRAY + "-us";
             }
+            snipe.AdditionalProps["da"] = (DateTime.UtcNow - snipe.Auction.FindTime).ToString();
             if (!await SendFlip(snipe))
                 Console.WriteLine($"sending failed :( {snipe.Auction.Uuid} on {ConSpan?.Context.TraceId}");
             else if (snipe.TargetPrice - snipe.Auction.StartingBid > 10_000_000)
