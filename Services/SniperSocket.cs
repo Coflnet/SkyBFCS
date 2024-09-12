@@ -332,7 +332,7 @@ public class SniperSocket : MinecraftSocket
             // uppercase each keys first letter
             foreach (var item in dict.Keys.ToList())
             {
-                if (Lookup.Contains(item))
+                if (Lookup.Contains(item) || item.EndsWith("Rune")) // rune options are not available
                 {
                     continue;
                 }
