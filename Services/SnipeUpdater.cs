@@ -59,8 +59,12 @@ public class SnipeUpdater : NewUpdater
                     NewAuction?.Invoke(a);
                     if (isLast)
                     {
-                        Console.WriteLine("Info: No more auctions");
-                        UpdateProcessed?.Invoke();
+                        await Task.Delay(3);
+                        if (newAuctions.Reader.Count == 0)
+                        {
+                            Console.WriteLine("Info: No more auctions");
+                            UpdateProcessed?.Invoke();
+                        }
                     }
                 }
                 catch (System.Exception e)
