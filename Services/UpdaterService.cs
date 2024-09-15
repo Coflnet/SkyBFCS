@@ -54,8 +54,12 @@ namespace Coflnet.Sky.BFCS.Services
                 logger.LogInformation("Init: loading external data");
                 await externalLoader.Load();
                 await Task.Delay(TimeSpan.FromHours(0.5), stoppingToken);
-                // load again in case the main instance didn't have all items at the time
-                await externalLoader.Load();
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    // load again in case the main instance didn't have all items at the time
+                    await externalLoader.Load();
+                    await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                }
             }).ConfigureAwait(false);
             await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken); // give other services time to load
             await DoFullUpdate(stoppingToken);
