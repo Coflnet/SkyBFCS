@@ -55,6 +55,7 @@ public class SnipeUpdater : NewUpdater
                     }
                     a.Context["upage"] = next.pageId.ToString();
                     a.Context["utry"] = next.tryCount.ToString();
+                    a.Context["ucount"] = next.offset.ToString();
                     sniper.TestNewAuction(a);
                     NewAuction?.Invoke(a);
                     if (isLast)
@@ -108,14 +109,15 @@ public class SnipeUpdater : NewUpdater
         return new MockProd<SaveAuction>(a => sniper.TestNewAuction(a));
     }
 
-    protected override void FoundNew(int pageId, IProducer<string, SaveAuction> p, AuctionPage page, int tryCount, Auction auction, Activity prodSpan)
+    protected override void FoundNew(int pageId, IProducer<string, SaveAuction> p, AuctionPage page, int tryCount, Auction auction, Activity prodSpan, int count)
     {
         newAuctions.Writer.WriteAsync(new Element()
         {
             auction = auction,
             lastUpdated = page.LastUpdated,
             pageId = pageId,
-            tryCount = tryCount
+            tryCount = tryCount,
+            offset = count
         }).ConfigureAwait(false);
     }
 
@@ -125,5 +127,6 @@ public class SnipeUpdater : NewUpdater
         public int pageId;
         public int tryCount;
         public DateTime lastUpdated;
+        public int offset;
     }
 }
