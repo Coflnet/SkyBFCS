@@ -9,6 +9,7 @@ public class StaticTierManager : IAccountTierManager
 {
     private AccountTier tier;
     private DateTime expiresAt;
+    public string? DefaultAccount { get; private set; }
 
     public StaticTierManager(ProxyReqSyncCommand.Format data)
     {
