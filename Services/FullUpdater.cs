@@ -34,7 +34,7 @@ namespace Coflnet.Sky.BFCS.Services
             {
                 if (!a.Bin)
                     return;
-                sniper.TestNewAuction(a, false);
+                ForwardAuction(a);
             });
         }
 
@@ -45,11 +45,19 @@ namespace Coflnet.Sky.BFCS.Services
             foreach (var auction in a)
             {
                 if (auction.Bin)
-                    sniper.TestNewAuction(auction, false);
+                    ForwardAuction(auction);
                 sumary.ActiveAuctions[auction.UId] = auction.End.Ticks;
             }
             logger.LogInformation($"saving {a.Count()} bin auctions");
             return Task.FromResult(a.Count());
+        }
+
+        private void ForwardAuction(SaveAuction auction)
+        {
+            var isNew = auction.Start > DateTime.UtcNow.AddMinutes(-1);
+            sniper.TestNewAuction(auction, isNew);
+            if (isNew)
+                logger.LogInformation($"New auction {auction.Uuid} {auction.UId} {auction.Tag} {auction.Start}");
         }
 
         protected override IProducer<string, AhStateSumary> GetSumaryProducer()
