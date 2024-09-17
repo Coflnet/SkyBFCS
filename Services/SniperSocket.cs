@@ -16,6 +16,7 @@ using Coflnet.Sky.ModCommands.Services;
 using Microsoft.Extensions.Configuration;
 using Coflnet.Sky.ModCommands.Dialogs;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Coflnet.Sky.BFCS.Services;
 public class SniperSocket : MinecraftSocket
@@ -26,6 +27,7 @@ public class SniperSocket : MinecraftSocket
     private static readonly ClassNameDictonary<McCommand> ExecuteBoth;
     private bool WindingDown = false;
     private ConcurrentQueue<string> flipUuidsSent = new ConcurrentQueue<string>();
+    private Timer housekeepingTimer;
     // private static ConcurrentDictionary<Type, Func<SniperSocket, object>> serviceConstructors = new ConcurrentDictionary<Type, Func<SniperSocket, object>>();
     private ServiceProvider services;
     static SniperSocket()
@@ -60,6 +62,10 @@ public class SniperSocket : MinecraftSocket
         TryAsyncTimes(() =>
         {
             SetupModAdapter();
+            housekeepingTimer = new Timer(async _ =>
+            {
+                await HouseKeeping();
+            }, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
             return Task.CompletedTask;
         }, "mod con setup", 1);
     }
@@ -164,11 +170,7 @@ public class SniperSocket : MinecraftSocket
             case "ping":
             case "countdown":
                 Send(ev.Data);
-                if (sessionLifesycle != null)
-                {
-                    sessionLifesycle.HouseKeeping();
-                    await sessionLifesycle.DelayHandler.Update(SessionInfo.MinecraftUuids, SessionInfo.LastCaptchaSolve);
-                }
+                await HouseKeeping();
                 break;
             case "stop":
                 WindingDown = true;
@@ -181,6 +183,15 @@ public class SniperSocket : MinecraftSocket
                 break;
         }
         await Task.Delay(0);
+    }
+
+    private async Task HouseKeeping()
+    {
+        if (sessionLifesycle != null)
+        {
+            sessionLifesycle.HouseKeeping();
+            await sessionLifesycle.DelayHandler.Update(SessionInfo.MinecraftUuids, SessionInfo.LastCaptchaSolve);
+        }
     }
 
     private async Task UpdateExemptKeys(Response deserialized)
@@ -424,6 +435,9 @@ public class SniperSocket : MinecraftSocket
         Console.WriteLine("close error " + e?.Reason);
         base.OnClose(e);
         services.Dispose();
+        // disable timer
+        housekeepingTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+        housekeepingTimer?.Dispose();
     }
 
     protected override void OnMessage(MessageEventArgs e)
