@@ -161,8 +161,7 @@ public class SniperSocket : MinecraftSocket
                         Reason = "Already sent"
                     });
                     activity.Log("Already sent");
-                    if (ModAdapter is not AfVersionAdapter)
-                        return; // block on mod to avoid filling chat
+                    return; // duplicates
                 }
                 Send(ev.Data);
                 activity.Log("Sent flip");
