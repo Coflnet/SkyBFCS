@@ -214,17 +214,19 @@ public class SniperSocket : MinecraftSocket
         var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
         if (data.SessionInfo.McName == "test")
         {
-            SessionInfo = new();
-            SessionInfo.ConnectionId = "test";
-            SessionInfo.McName = "test";
-            SessionInfo.McUuid = "test";
-            SessionInfo.SessionId = "test" + Random.Shared.Next();
+            SessionInfo = new()
+            {
+                ConnectionId = "test",
+                McName = "test",
+                McUuid = "test",
+                SessionId = "test" + Random.Shared.Next()
+            };
             return Task.CompletedTask;
         }
         else if (data.SessionInfo.SessionTier < AccountTier.PREMIUM_PLUS)
         {
-            Dialog(db => db.Break.MsgLine("Sorry, your account does not have premium plus, redirecting back", null, "Prem+ is required for this service")
-                .CoflCommand<PurchaseCommand>($"{McColorCodes.GREEN}Click here to purchase Prem+", "prem+", "Start purchasing Prem+"));
+            Dialog(db => db.Break.MsgLine($"Sorry, your account does not have {McColorCodes.GOLD}premium plus{McColorCodes.RESET}, redirecting back", null, "Prem+ is required for this service")
+                .CoflCommand<PurchaseCommand>($"{McColorCodes.GOLD}Click here to purchase Prem+", "prem+", "Start purchasing Prem+"));
             ExecuteCommand("/cofl start");
             Close();
             return Task.CompletedTask;
