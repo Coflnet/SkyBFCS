@@ -187,11 +187,13 @@ public class SniperSocket : MinecraftSocket
 
     private async Task HouseKeeping()
     {
-        if (sessionLifesycle != null)
+        if (sessionLifesycle == null)
+            return;
+        _ = TryAsyncTimes(async () =>
         {
             sessionLifesycle.HouseKeeping();
             await sessionLifesycle.DelayHandler.Update(SessionInfo.MinecraftUuids, SessionInfo.LastCaptchaSolve);
-        }
+        }, "housekeeping", 1);
     }
 
     private async Task UpdateExemptKeys(Response deserialized)
