@@ -69,7 +69,7 @@ namespace Coflnet.Sky.BFCS.Services
             var firstPublished = DateTime.MinValue;
             sniper.FoundSnipe += (lp) =>
             {
-                if (lp.TargetPrice < 2_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.08 || lp.DailyVolume < 0.2 || lp.Finder == Core.LowPricedAuction.FinderType.STONKS && lp.DailyVolume < 0.5)
+                if (lp.TargetPrice < 2_000_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.06 || lp.DailyVolume < 0.2 || lp.Finder == Core.LowPricedAuction.FinderType.STONKS && lp.DailyVolume < 0.5)
                     return;
                 prod?.Publish(new RedisChannel("snipes", RedisChannel.PatternMode.Literal), MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
                 if (firstPublished < lp.Auction.FindTime - TimeSpan.FromSeconds(20))
