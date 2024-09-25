@@ -394,7 +394,10 @@ public class SniperSocket : MinecraftSocket
             if (!await SendFlip(snipe))
                 Console.WriteLine($"sending failed :( {snipe.Auction.Uuid} on {ConSpan?.Context.TraceId}");
             else if (snipe.TargetPrice - snipe.Auction.StartingBid > 10_000_000)
-                Console.WriteLine($"sent {snipe.Auction.Uuid} to {SessionInfo?.McUuid} on {ConSpan?.Context.TraceId}");
+            {
+                var blockedReson = TopBlocked.Where(b => b.Flip.Auction.Uuid == snipe.Auction.Uuid && b.Flip.Finder == snipe.Finder && b.Flip.TargetPrice == snipe.TargetPrice).FirstOrDefault();
+                Console.WriteLine($"sent {snipe.Auction.Uuid} to {SessionInfo?.McUuid} on {ConSpan?.Context.TraceId}, blocked {blockedReson?.Reason}");
+            }
         }, "sending flip", 1);
     }
 
