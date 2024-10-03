@@ -176,6 +176,14 @@ public class SniperSocket : MinecraftSocket
                 clientSocket.Close();
                 Close();
                 break;
+            case "chatMessage":
+                if (ev.Data.Contains("WhichBLEntry", StringComparison.OrdinalIgnoreCase) && LastSent.Any(l => ev.Data.Contains(l.Auction.Uuid)))
+                {
+                    Console.WriteLine("Blocked dupplicate wl entry for " + ev.Data + " on user " + SessionInfo.McUuid);
+                }
+                else
+                    Send(ev.Data);
+                break;
             default:
                 // forward
                 Send(ev.Data);
