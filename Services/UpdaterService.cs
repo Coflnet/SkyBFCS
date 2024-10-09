@@ -78,7 +78,6 @@ namespace Coflnet.Sky.BFCS.Services
                     firstPublished = DateTime.UtcNow; // prevent multiple updates in same minute
                     firstFlipPublished.Set(DateTime.UtcNow.Subtract(apiUpdateTime).TotalSeconds);
                 }
-                Console.WriteLine($"found {lp.Finder} :O {lp.Auction.Uuid} {lp.Auction.ItemName}");
                 var timestamp = (long)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
                 Task.Run(async () =>
                 {

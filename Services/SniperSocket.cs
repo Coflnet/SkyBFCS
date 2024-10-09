@@ -177,11 +177,7 @@ public class SniperSocket : MinecraftSocket
                 Close();
                 break;
             case "chatMessage":
-                if (ev.Data.Contains("WhichBLEntry", StringComparison.OrdinalIgnoreCase) && LastSent.Any(l => ev.Data.Contains(l.Auction.Uuid)))
-                {
-                    Console.WriteLine("Blocked dupplicate wl entry for " + ev.Data + " on user " + SessionInfo.McUuid);
-                }
-                else
+                if (!ev.Data.Contains("WhichBLEntry", StringComparison.OrdinalIgnoreCase) || !LastSent.Any(l => ev.Data.Contains(l.Auction.Uuid)))
                     Send(ev.Data);
                 break;
             default:
