@@ -15,7 +15,7 @@ COPY SkyBFCS.csproj SkyBFCS.csproj
 RUN dotnet restore
 COPY . .
 RUN mkdir Mock && mkdir -p /app/Mock && cp /build/SkySniper/Mock/ Mock/ -r
-RUN dotnet test && dotnet publish -c release -o /app && rm /app/items.json
+RUN dotnet test && dotnet publish -c release -o /app && rm -r /app/items.json /app/Mock
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
