@@ -6,14 +6,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using Coflnet.Sky.Commands.MC;
+using Coflnet.Sky.Commands.Shared;
 
 namespace Coflnet.Sky.BFCS.Services;
 
 public class BfcsBackgroundService(
     IServiceScopeFactory scopeFactory,
     IConfiguration config,
-    ILogger<ModBackgroundService> logger, IDelayExemptList exemptList) 
-    : ModBackgroundService(scopeFactory, config, logger, null, null, exemptList)
+    ILogger<ModBackgroundService> logger, IDelayExemptList exemptList,
+    FilterStateService filterStateService) 
+    : ModBackgroundService(scopeFactory, config, logger, null, null, exemptList, filterStateService)
 {
     public event Action<LowPricedAuction> FoundSnipe;
 
