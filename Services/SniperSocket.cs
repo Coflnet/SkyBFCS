@@ -230,13 +230,10 @@ public class SniperSocket : MinecraftSocket
         var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
         if (data.SessionInfo.McName == "test")
         {
-            SessionInfo = new()
-            {
-                ConnectionId = "test",
-                McName = "test",
-                McUuid = "test",
-                SessionId = "test" + Random.Shared.Next()
-            };
+            SessionInfo.ConnectionId = "test";
+            SessionInfo.McName = "test";
+            SessionInfo.McUuid = "test";
+            SessionInfo.SessionId = "test" + Random.Shared.Next();
             return Task.CompletedTask;
         }
         else if (data.SessionInfo.SessionTier < AccountTier.PREMIUM_PLUS)
@@ -247,7 +244,16 @@ public class SniperSocket : MinecraftSocket
             Close();
             return Task.CompletedTask;
         }
-        SessionInfo = data.SessionInfo;
+        // copy everything from  data.SessionInfo to SessionInfo
+        try
+        {
+            NewMethod(data);
+        }
+        catch (Exception e)
+        {
+            Error(e, "Error copying session info", JsonConvert.SerializeObject(data.SessionInfo));
+        }
+
         if (sessionLifesycle == null)
         {
             sessionLifesycle = new ModSessionLifesycle(this)
@@ -284,6 +290,28 @@ public class SniperSocket : MinecraftSocket
 
         UpdateSettings(data);
         return Task.CompletedTask;
+    }
+
+    private void NewMethod(ProxyReqSyncCommand.Format data)
+    {
+        var properties = typeof(SessionInfo).GetProperties();
+        foreach (var prop in properties)
+        {
+            var value = prop.GetValue(data.SessionInfo);
+            if (value != null && prop.CanWrite)
+            {
+                prop.SetValue(SessionInfo, value);
+            }
+        }
+        var fields = typeof(SessionInfo).GetFields();
+        foreach (var field in fields)
+        {
+            var value = field.GetValue(data.SessionInfo);
+            if (value != null)
+            {
+                field.SetValue(SessionInfo, value);
+            }
+        }
     }
 
     private void UpdateSettings(ProxyReqSyncCommand.Format data)
