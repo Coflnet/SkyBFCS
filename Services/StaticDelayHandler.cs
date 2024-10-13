@@ -79,7 +79,9 @@ public class StaticDelayHandler : IDelayHandler
     public bool IsLikelyBot(FlipInstance flipInstance)
     {
         return (flipInstance.ProfitPercentage > 300
-            || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 8) || flipInstance.Volume >= 24 || IsHighCompetitionKey(flipInstance)) && flipInstance.Auction.UId % SkipGroups == skipOn;
+            || flipInstance.Profit < 1_100_000 
+            || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 8) || flipInstance.Volume >= 24 || IsHighCompetitionKey(flipInstance)) 
+            && flipInstance.Auction.UId % SkipGroups == skipOn;
     }
 
     private bool IsHighCompetitionKey(FlipInstance flipInstance)
