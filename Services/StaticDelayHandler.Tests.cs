@@ -17,7 +17,9 @@ public class StaticDelayHandlerTest
         {
             Auction = new Core.SaveAuction()
             {
-                StartingBid = startingBid
+                StartingBid = startingBid,
+                Enchantments = new(){new Core.Enchantment(){}},
+                FlatenedNBT = new()
             },
             MedianPrice = medianPrice,
             Volume = volume
