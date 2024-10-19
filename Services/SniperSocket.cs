@@ -188,20 +188,22 @@ public class SniperSocket : MinecraftSocket
         await Task.Delay(0);
     }
 
-    private async Task HouseKeeping()
+    private Task HouseKeeping()
     {
         if (sessionLifesycle == null)
-            return;
+            return Task.CompletedTask;
         _ = TryAsyncTimes(async () =>
         {
             sessionLifesycle.HouseKeeping();
             await sessionLifesycle.DelayHandler.Update(SessionInfo.MinecraftUuids, SessionInfo.LastCaptchaSolve);
         }, "housekeeping", 1);
+        return Task.CompletedTask;
     }
 
-    private async Task UpdateExemptKeys(Response deserialized)
+    private Task UpdateExemptKeys(Response deserialized)
     {
         GetService<IDelayExemptList>().Exemptions = JsonConvert.DeserializeObject<HashSet<(string, string)>>(deserialized.data);
+        return Task.CompletedTask;
     }
 
     public void SendToServer(Response command)
