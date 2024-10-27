@@ -79,6 +79,8 @@ namespace Coflnet.Sky.BFCS.Services
                     firstFlipPublished.Set(DateTime.UtcNow.Subtract(apiUpdateTime).TotalSeconds);
                 }
                 var timestamp = (long)DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
+                if (lp.TargetPrice < 5_000_000)
+                    return;
                 Task.Run(async () =>
                 {
                     await Task.Delay(500).ConfigureAwait(false);
