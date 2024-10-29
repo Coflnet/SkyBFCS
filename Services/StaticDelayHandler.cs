@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Coflnet.Sky.BFCS.Services;
 
@@ -64,9 +65,16 @@ public class StaticDelayHandler : IDelayHandler
         if (!sessionInfo.IsMacroBot && isDatacenterIp && CurrentDelay < TimeSpan.FromSeconds(0.1) && userRandom.NextDouble() < 0.8)
             await Task.Delay(TimeSpan.FromSeconds(4) - CurrentDelay).ConfigureAwait(false);
         else if (userRandom.NextDouble() < 0.1 * (sessionInfo.Purse == 0 ? 5 : 0.5)) // sampling dropout
+        {
+            Activity.Current.Log("Dropout");
             await Task.Delay(TimeSpan.FromSeconds(6)).ConfigureAwait(false);
+        }
         if (sessionInfo.IsMacroBot && flipInstance.Profit > 1_000_000)
+        {
+            var delayAmunt = flipInstance.Profit / 1_000_000 * 55;
+            Activity.Current.Log($"BAF {delayAmunt}");
             await Task.Delay(TimeSpan.FromMilliseconds(flipInstance.Profit / 1_000_000 * 55)).ConfigureAwait(false);
+        }
         return DateTime.UtcNow;
     }
 
