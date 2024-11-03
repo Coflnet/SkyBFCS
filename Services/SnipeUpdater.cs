@@ -15,7 +15,7 @@ using Prometheus;
 namespace Coflnet.Sky.BFCS.Services;
 public class SnipeUpdater : NewUpdater
 {
-    Sky.Sniper.Services.SniperService sniper;
+    SniperService sniper;
     // protected override string ApiBaseUrl => "https://localhost:7013";
     Channel<Element> newAuctions;
     public event Action<SaveAuction> NewAuction;
@@ -68,7 +68,7 @@ public class SnipeUpdater : NewUpdater
                         }
                     }
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
                     dev.Logger.Instance.Error(e, "Testing new auction");
                 }
