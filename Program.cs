@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Coflnet.Sky.BFCS.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -14,9 +15,11 @@ namespace Coflnet.Sky.BFCS
             server.KeepClean = false;
             server.AddWebSocketService<SniperSocket>("/socket");
             server.AddWebSocketService<SniperSocket>("/modsocket");
-            server.OnGet += (arg,e) =>
+            server.OnGet += (arg, e) =>
             {
                 e.Response.StatusCode = 204;
+                if (e.Request.RawUrl.Contains("socket"))
+                    Console.WriteLine("Got request to " + e.Request.RawUrl);
                 return Task.CompletedTask;
             };
             server.Log.Level = WebSocketSharp.LogLevel.Debug;
