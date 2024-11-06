@@ -18,8 +18,13 @@ namespace Coflnet.Sky.BFCS
             server.OnGet += (arg, e) =>
             {
                 e.Response.StatusCode = 204;
-                if (e.Request.RawUrl.Contains("socket"))
+                if (e.Request.RawUrl.Contains("modsocket?version"))
+                {
                     Console.WriteLine("Got request to " + e.Request.RawUrl);
+                    var redirectUrl = "ws://sky-us.coflnet.com/modsocket";
+                    e.Response.Headers.Add("Location", redirectUrl);
+                    e.Response.StatusCode = 302;
+                }
                 return Task.CompletedTask;
             };
             server.Log.Level = WebSocketSharp.LogLevel.Debug;
