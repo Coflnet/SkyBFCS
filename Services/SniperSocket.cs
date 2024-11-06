@@ -246,10 +246,9 @@ public class SniperSocket : MinecraftSocket
             Close();
             return Task.CompletedTask;
         }
-        // copy everything from  data.SessionInfo to SessionInfo
         try
         {
-            NewMethod(data);
+            CopySessionInfoInfoContent(data);
         }
         catch (Exception e)
         {
@@ -294,7 +293,7 @@ public class SniperSocket : MinecraftSocket
         return Task.CompletedTask;
     }
 
-    private void NewMethod(ProxyReqSyncCommand.Format data)
+    private void CopySessionInfoInfoContent(ProxyReqSyncCommand.Format data)
     {
         var properties = typeof(SessionInfo).GetProperties();
         foreach (var prop in properties)
