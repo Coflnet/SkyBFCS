@@ -24,6 +24,8 @@ public class StaticTierManager : IAccountTierManager
 
     public DateTime ExpiresAt => expiresAt;
 
+    public bool IsLicense => false;
+
     public event EventHandler<AccountTier> OnTierChange;
 
     public Task ChangeDefaultTo(string mcUuid)
