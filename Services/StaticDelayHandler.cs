@@ -31,27 +31,6 @@ public class StaticDelayHandler : IDelayHandler
         userRandom = new Random(sessionInfo.McUuid.GetHashCode());
     }
 
-    public (uint lower, uint upper) GetIpRange(string mask)
-    {
-        var parts = mask.Split('/');
-        var ip = IPAddress.Parse(parts[0]);
-        var maskLength = int.Parse(parts[1]);
-        var maskBytes = new byte[4];
-        for (int i = 0; i < maskLength; i++)
-        {
-            maskBytes[i / 8] |= (byte)(1 << (7 - i % 8));
-        }
-        var ipBytes = ip.GetAddressBytes();
-        var lowerBytes = new byte[4];
-        var upperBytes = new byte[4];
-        for (int i = 0; i < 4; i++)
-        {
-            lowerBytes[i] = (byte)(ipBytes[i] & maskBytes[i]);
-            upperBytes[i] = (byte)(ipBytes[i] | ~maskBytes[i]);
-        }
-        return (BitConverter.ToUInt32(lowerBytes.Reverse().ToArray(), 0), BitConverter.ToUInt32(upperBytes.Reverse().ToArray(), 0));
-    }
-
     public async Task<DateTime> AwaitDelayForFlip(FlipInstance flipInstance)
     {
         // simple calculation
@@ -59,6 +38,11 @@ public class StaticDelayHandler : IDelayHandler
             return DateTime.UtcNow;
         if (IsLikelyBot(flipInstance))
             return DateTime.UtcNow;
+        if (IsHighCompetitionKey(flipInstance) && CurrentDelay > TimeSpan.Zero)
+        { // somebody else seems to be macroing this key, so cut the delay short
+            await Task.Delay(Math.Min(CurrentDelay.Milliseconds, 20));
+            return DateTime.UtcNow;
+        }
         if (CurrentDelay > TimeSpan.Zero)
             await Task.Delay(CurrentDelay);
         if (!sessionInfo.IsMacroBot && isDatacenterIp && CurrentDelay < TimeSpan.FromSeconds(0.1) && userRandom.NextDouble() < 0.8)
@@ -88,13 +72,13 @@ public class StaticDelayHandler : IDelayHandler
         return (flipInstance.ProfitPercentage > 300
             || flipInstance.Profit < 1_100_000
             || flipInstance.Auction.Enchantments.Count == 0 && flipInstance.Auction.FlatenedNBT.Count < 4
-            || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 8) || flipInstance.Volume >= 24 || IsHighCompetitionKey(flipInstance))
+            || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 8) || flipInstance.Volume >= 24 || IsHighCompetitionKey(flipInstance) && flipInstance.Volume > 10)
             && flipInstance.Auction.UId % SkipGroups == skipOn;
     }
 
     private bool IsHighCompetitionKey(FlipInstance flipInstance)
     {
-        return flipInstance.Context != null && highCompetitionKeys.Contains(flipInstance.Context.GetValueOrDefault("key", "nope")) && flipInstance.Volume > 10;
+        return flipInstance.Context != null && highCompetitionKeys.Contains(flipInstance.Context.GetValueOrDefault("key", "nope"));
     }
 
     public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime)
