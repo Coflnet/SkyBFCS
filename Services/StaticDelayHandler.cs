@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Linq;
 using System.Diagnostics;
+using System.Threading;
 
 namespace Coflnet.Sky.BFCS.Services;
 
@@ -20,6 +21,7 @@ public class StaticDelayHandler : IDelayHandler
     public bool isDatacenterIp { get; private set; }
     Random userRandom;
     int skipOn = 0;
+    private static long ExemptCounter = 0;
     private static readonly int SkipGroups = 8;
 
     public StaticDelayHandler(TimeSpan currentDelay, SessionInfo sessionInfo, string clientIP)
@@ -73,7 +75,7 @@ public class StaticDelayHandler : IDelayHandler
             || flipInstance.Profit < 1_100_000
             || flipInstance.Auction.Enchantments.Count == 0 && flipInstance.Auction.FlatenedNBT.Count < 4
             || flipInstance.Profit > 50_000_000 / Math.Min(Math.Max(flipInstance.Volume, 2), 8) || flipInstance.Volume >= 24 || IsHighCompetitionKey(flipInstance) && flipInstance.Volume > 10)
-            && flipInstance.Auction.UId % SkipGroups == skipOn;
+            && Math.Abs(flipInstance.Auction.UId % SkipGroups) == skipOn;
     }
 
     private bool IsHighCompetitionKey(FlipInstance flipInstance)
@@ -83,8 +85,9 @@ public class StaticDelayHandler : IDelayHandler
 
     public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime)
     {
-        skipOn = userRandom.Next(0, SkipGroups);
-        Console.WriteLine($"Updated delay, now skipping {skipOn}");
+        Interlocked.Increment(ref ExemptCounter);
+        skipOn = (int)(ExemptCounter % SkipGroups);
+        Console.WriteLine($"Updated delay, now skipping {skipOn} for {sessionInfo.McUuid}");
         // nothing todo, gets set by the socket
         return Task.FromResult(new DelayHandler.Summary() { VerifiedMc = true, Penalty = CurrentDelay });
     }
