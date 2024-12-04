@@ -18,6 +18,7 @@ public class SnipeUpdater : NewUpdater
     SniperService sniper;
     // protected override string ApiBaseUrl => "https://localhost:7013";
     Channel<Element> newAuctions;
+    Channel<SaveAuction> secondPass;
     public event Action<SaveAuction> NewAuction;
     public HashSet<string> LowValueItems = new();
     public event Action UpdateProcessed;
@@ -56,17 +57,26 @@ public class SnipeUpdater : NewUpdater
                     a.Context["upage"] = next.pageId.ToString();
                     a.Context["utry"] = next.tryCount.ToString();
                     a.Context["ucount"] = next.offset.ToString();
-                    sniper.TestNewAuction(a);
+                    sniper.TestNewAuction(a, true, true);
                     NewAuction?.Invoke(a);
-                    if (isLast)
+                    await secondPass.Writer.WriteAsync(a).ConfigureAwait(false);
+                    if (!isLast)
                     {
-                        await Task.Delay(3);
-                        if (newAuctions.Reader.Count == 0)
-                        {
-                            Console.WriteLine("Info: No more auctions");
-                            UpdateProcessed?.Invoke();
-                        }
+                        continue;
                     }
+                    await Task.Delay(3);
+                    if (newAuctions.Reader.Count != 0)
+                    {
+                        continue;
+                    }
+                    Console.WriteLine("Info: No more auctions");
+                    UpdateProcessed?.Invoke();
+                    while (secondPass.Reader.Count > 0)
+                    {
+                        var a2 = await secondPass.Reader.ReadAsync().ConfigureAwait(false);
+                        sniper.TestNewAuction(a2);
+                    }
+                    Console.WriteLine("Info: Done with all auctions - second pass");
                 }
                 catch (Exception e)
                 {
