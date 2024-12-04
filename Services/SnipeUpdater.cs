@@ -98,7 +98,14 @@ public class SnipeUpdater : NewUpdater
         while (secondPass.Reader.Count > 0)
         {
             var a2 = await secondPass.Reader.ReadAsync().ConfigureAwait(false);
-            sniper.TestNewAuction(a2);
+            try
+            {
+                sniper.TestNewAuction(a2);
+            }
+            catch (System.Exception e)
+            {
+                dev.Logger.Instance.Error(e, "second pass");
+            }
         }
         Console.WriteLine("Info: Done with all auctions - second pass");
         // wait for other processing to finish before updating lbin
