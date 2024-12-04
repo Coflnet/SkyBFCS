@@ -31,6 +31,8 @@ public class SnipeUpdater : NewUpdater
         newAuctions = Channel.CreateUnbounded<Element>();
         SpawnWorker(sniper);
         SpawnWorker(sniper);
+        SpawnWorker(sniper);
+        SpawnWorker(sniper);
         // get the number of cores
         coreCount = Environment.ProcessorCount;
         Console.WriteLine("Info: Using " + coreCount + " processors");
