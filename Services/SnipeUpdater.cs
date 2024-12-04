@@ -46,6 +46,7 @@ public class SnipeUpdater : NewUpdater
             {
                 try
                 {
+                    CancellationTokenSource token = new CancellationTokenSource();
                     var next = await newAuctions.Reader.ReadAsync().ConfigureAwait(false);
                     var isLast = newAuctions.Reader.Count == 0;
                     if (!next.auction.BuyItNow)
@@ -66,19 +67,7 @@ public class SnipeUpdater : NewUpdater
                     {
                         continue;
                     }
-                    await Task.Delay(3);
-                    if (newAuctions.Reader.Count != 0)
-                    {
-                        continue;
-                    }
-                    Console.WriteLine("Info: No more auctions");
-                    UpdateProcessed?.Invoke();
-                    while (secondPass.Reader.Count > 0)
-                    {
-                        var a2 = await secondPass.Reader.ReadAsync().ConfigureAwait(false);
-                        sniper.TestNewAuction(a2);
-                    }
-                    Console.WriteLine("Info: Done with all auctions - second pass");
+
                 }
                 catch (Exception e)
                 {
@@ -102,6 +91,15 @@ public class SnipeUpdater : NewUpdater
         }
         var result = await Task.WhenAll(queries.ToArray());
         pageToken.Cancel();
+        await Task.Delay(3);
+        Console.WriteLine("Info: No more auctions");
+        UpdateProcessed?.Invoke();
+        while (secondPass.Reader.Count > 0)
+        {
+            var a2 = await secondPass.Reader.ReadAsync().ConfigureAwait(false);
+            sniper.TestNewAuction(a2);
+        }
+        Console.WriteLine("Info: Done with all auctions - second pass");
         // wait for other processing to finish before updating lbin
         await Task.Delay(2000);
         sniper.FinishedUpdate();
