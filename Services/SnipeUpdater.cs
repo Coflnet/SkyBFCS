@@ -29,6 +29,7 @@ public class SnipeUpdater : NewUpdater
     {
         this.sniper = sniper;
         newAuctions = Channel.CreateUnbounded<Element>();
+        secondPass = Channel.CreateBounded<SaveAuction>(1000);
         SpawnWorker(sniper);
         SpawnWorker(sniper);
         SpawnWorker(sniper);
