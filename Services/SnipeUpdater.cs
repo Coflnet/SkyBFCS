@@ -81,6 +81,10 @@ public class SnipeUpdater : NewUpdater
     protected override async Task<DateTime> DoOneUpdate(DateTime lastUpdate, IProducer<string, SaveAuction> p, int page, Activity siteSpan)
     {
         var pageToken = new CancellationTokenSource(20000);
+        while (sniper.AllocatedDicts.Count < 1000)
+        {
+            sniper.AllocatedDicts.Enqueue(new(5));
+        }
         var queries = new List<Task<(DateTime, int)>> { GetAndSavePage(page, p, lastUpdate, siteSpan, pageToken, 0) };
         if (coreCount > 1)
         {
