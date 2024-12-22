@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Coflnet.Sky.ModCommands.Dialogs;
 using System.Diagnostics;
 using System.Threading;
+using OpenTelemetry.Trace;
 
 namespace Coflnet.Sky.BFCS.Services;
 public class SniperSocket : MinecraftSocket
@@ -117,13 +118,13 @@ public class SniperSocket : MinecraftSocket
 
     private async Task HandleServerCommand(MessageEventArgs ev)
     {
-        using var activity = CreateActivity("ServerCommand", ConSpan);
         if (ReadyState == WebSocketState.Closed)
         {
             clientSocket.Close();
             return;
         }
         var deserialized = JsonConvert.DeserializeObject<Response>(ev.Data);
+        using var activity = CreateActivity("ServerCommand", ConSpan);
         activity.AddTag("type", deserialized.type);
         activity.Log(deserialized.data);
         switch (deserialized.type)
