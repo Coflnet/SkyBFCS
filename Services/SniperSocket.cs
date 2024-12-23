@@ -124,8 +124,8 @@ public class SniperSocket : MinecraftSocket
             return;
         }
         var deserialized = JsonConvert.DeserializeObject<Response>(ev.Data);
-        using var activity = CreateActivity("ServerCommand", ConSpan);
-        activity.AddTag("type", deserialized.type);
+        using var activity = SessionInfo.IsDebug ? CreateActivity("ServerCommand", ConSpan) : null;
+        activity?.AddTag("type", deserialized.type);
         activity.Log(deserialized.data);
         switch (deserialized.type)
         {
@@ -499,7 +499,7 @@ public class SniperSocket : MinecraftSocket
 
     private async Task HandleCommand(MessageEventArgs e)
     {
-        using var activity = CreateActivity("ClientCommand", ConSpan);
+        using var activity = SessionInfo.IsDebug ? CreateActivity("ClientCommand", ConSpan) : null;
         activity.Log(e.Data.Truncate(50));
         var deserialized = JsonConvert.DeserializeObject<Response>(e.Data);
         if (TryLocalFirst.ContainsKey(deserialized.type.ToLower()))
