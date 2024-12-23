@@ -540,7 +540,7 @@ public class SniperSocket : MinecraftSocket
                 clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"local report id {traceId}")));
                 await Task.Delay(1000);
                 clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"local report id {traceId}")));
-                Dialog(db => db.MsgLine($"Us error id: {traceId}"));
+                Dialog(db => db.MsgLine($"Us error id: {traceId}", "http://" + traceId));
                 break;
             default:
                 clientSocket.Send(e.Data);
