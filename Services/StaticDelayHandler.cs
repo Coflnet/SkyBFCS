@@ -83,7 +83,7 @@ public class StaticDelayHandler : IDelayHandler
         return flipInstance.Context != null && highCompetitionKeys.Contains(flipInstance.Context.GetValueOrDefault("key", "nope"));
     }
 
-    public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime)
+    public Task<DelayHandler.Summary> Update(IEnumerable<string> ids, DateTime lastCaptchaSolveTime, string licenseOn = null)
     {
         Interlocked.Increment(ref ExemptCounter);
         skipOn = (int)(ExemptCounter % SkipGroups);
