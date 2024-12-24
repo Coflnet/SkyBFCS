@@ -422,7 +422,7 @@ public class SniperSocket : MinecraftSocket
                 return;
             if (snipe.Auction.Context.TryGetValue("cname", out string name) && !name.EndsWith("-us"))
             {
-                snipe.Auction.Context["cname"] = name + McColorCodes.GRAY + "-us";
+                snipe.Auction.Context["cname"] = name + McColorCodes.DARK_GRAY + "-us";
             }
             snipe.AdditionalProps["da"] = (DateTime.UtcNow - snipe.Auction.FindTime).ToString();
             if (!await SendFlip(snipe))
