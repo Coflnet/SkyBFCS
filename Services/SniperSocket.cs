@@ -420,7 +420,7 @@ public class SniperSocket : MinecraftSocket
         {
             if (snipe?.Auction?.Context == null || Settings == null || snipe.TargetPrice - snipe.Auction.StartingBid < Settings.MinProfit)
                 return;
-            if (snipe.Auction.Context.TryGetValue("cname", out string name) && !name.EndsWith("-us"))
+            if (snipe.Auction.Context.TryGetValue("cname", out string name) && !name.Contains("-us"))
             {
                 snipe.Auction.Context["cname"] = name + McColorCodes.DARK_GRAY + "-us";
             }
