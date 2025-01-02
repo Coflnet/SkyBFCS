@@ -17,7 +17,6 @@ using Microsoft.Extensions.Configuration;
 using Coflnet.Sky.ModCommands.Dialogs;
 using System.Diagnostics;
 using System.Threading;
-using OpenTelemetry.Trace;
 
 namespace Coflnet.Sky.BFCS.Services;
 public class SniperSocket : MinecraftSocket
