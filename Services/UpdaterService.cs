@@ -69,7 +69,7 @@ namespace Coflnet.Sky.BFCS.Services
             var firstPublished = DateTime.MinValue;
             sniper.FoundSnipe += (lp) =>
             {
-                if (lp.TargetPrice < 1_500_000 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.06 || lp.DailyVolume < 0.1 || lp.Finder == Core.LowPricedAuction.FinderType.STONKS && lp.DailyVolume < 0.5)
+                if (lp.TargetPrice < 1_500_000 && lp.DailyVolume < 10 || (float)lp.TargetPrice / lp.Auction.StartingBid < 1.06 || lp.DailyVolume < 0.1 || lp.Finder == Core.LowPricedAuction.FinderType.STONKS && lp.DailyVolume < 0.5)
                     return;
                 prod?.Publish(new RedisChannel("snipes", RedisChannel.PatternMode.Literal), MessagePack.MessagePackSerializer.Serialize(lp), CommandFlags.FireAndForget);
                 if (firstPublished < lp.Auction.FindTime - TimeSpan.FromSeconds(20))
@@ -164,7 +164,7 @@ namespace Coflnet.Sky.BFCS.Services
                     sniper.UpdateMedian(bucket.Value, (item.Key, sniper.GetBreakdownKey(bucket.Key, item.Key)));
                 }
                 await Task.Delay(5); // prevent blocking the thread
-                if (item.Value.Lookup.All(l => l.Value.Price < 3_000_000))
+                if (item.Value.Lookup.All(l => l.Value.Price < 3_000_000 && l.Value.Volume < 20 || l.Value.Price < 800_000 ))
                 { // can't be more than 3m profit (usually minprofit) if the median is lower than that
                     lowValueItems.Add(item.Key);
                 }

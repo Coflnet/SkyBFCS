@@ -400,7 +400,7 @@ public class SniperSocket : MinecraftSocket
 
     private void SendSnipe(LowPricedAuction lp)
     {
-        if (lp.TargetPrice - lp.Auction.StartingBid < 1_000_000)
+        if (lp.TargetPrice - lp.Auction.StartingBid < 250_000)
             return; // not interesting
         if (!lp.Auction.Context.TryGetValue("csh", out string name))
         {
