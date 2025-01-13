@@ -51,7 +51,7 @@ public class SnipeUpdater : NewUpdater
                     var isLast = newAuctions.Reader.Count == 0;
                     if (!next.auction.BuyItNow)
                         continue;
-                    var a = Updater.Updater.ConvertAuction(next.auction, next.lastUpdated);
+                    var a = Updater.Updater.ConvertAuction(next.auction, next.lastUpdated, next.findTime);
                     if (LowValueItems.Contains(a.Tag))
                     {
                         lowValueSkipped.Inc();
@@ -133,7 +133,8 @@ public class SnipeUpdater : NewUpdater
             lastUpdated = page.LastUpdated,
             pageId = pageId,
             tryCount = tryCount,
-            offset = count
+            offset = count,
+            findTime = DateTime.UtcNow
         }).ConfigureAwait(false);
     }
 
@@ -143,6 +144,7 @@ public class SnipeUpdater : NewUpdater
         public int pageId;
         public int tryCount;
         public DateTime lastUpdated;
+        public DateTime findTime;
         public int offset;
     }
 }
