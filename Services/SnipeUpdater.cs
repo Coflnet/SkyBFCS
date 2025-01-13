@@ -60,9 +60,8 @@ public class SnipeUpdater : NewUpdater
                     a.Context["upage"] = next.pageId.ToString();
                     a.Context["utry"] = next.tryCount.ToString();
                     a.Context["ucount"] = next.offset.ToString();
-                    sniper.TestNewAuction(a, true, true);
+                    sniper.TestNewAuction(a, true);
                     _ = Task.Run(() => NewAuction?.Invoke(a));
-                    await secondPass.Writer.WriteAsync(a).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
