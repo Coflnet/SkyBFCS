@@ -28,7 +28,7 @@ public class SnipeUpdater : NewUpdater
     public SnipeUpdater(SniperService sniper) : base(Updater.Updater.activitySource, null)
     {
         this.sniper = sniper;
-        newAuctions = Channel.CreateUnbounded<Element>();
+        newAuctions = Channel.CreateBounded<Element>(500);
         userFinder = Channel.CreateBounded<SaveAuction>(1000);
         SpawnWorker(sniper);
         SpawnWorker(sniper);
@@ -83,7 +83,7 @@ public class SnipeUpdater : NewUpdater
                     a.Context["ucount"] = next.offset.ToString();
                     a.Context["frec"] = (DateTime.UtcNow - a.FindTime).ToString();
                     sniper.TestNewAuction(a, true);
-                    userFinder.Writer.TryWrite(a);
+                    await userFinder.Writer.WriteAsync(a);
                 }
                 catch (Exception e)
                 {
