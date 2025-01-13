@@ -41,13 +41,13 @@ public class SnipeUpdater : NewUpdater
 
     private void SpawnUserFinder()
     {
-        var thread = new Thread(() =>
+        Task.Run(async () =>
         {
             while (true)
             {
                 try
                 {
-                    var next = userFinder.Reader.ReadAsync().Result;
+                    var next = await userFinder.Reader.ReadAsync();
                     NewAuction?.Invoke(next);
                 }
                 catch (Exception e)
@@ -56,8 +56,6 @@ public class SnipeUpdater : NewUpdater
                 }
             }
         });
-        thread.Priority = ThreadPriority.BelowNormal;
-        thread.Start();
     }
 
     private void SpawnWorker(SniperService sniper)
