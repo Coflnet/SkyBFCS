@@ -18,7 +18,7 @@ public class SnipeUpdater : NewUpdater
     SniperService sniper;
     // protected override string ApiBaseUrl => "https://localhost:7013";
     Channel<Element> newAuctions;
-    Channel<SaveAuction> secondPass;
+    Channel<SaveAuction> userFinder;
     public event Action<SaveAuction> NewAuction;
     public HashSet<string> LowValueItems = new();
     public event Action UpdateProcessed;
@@ -29,14 +29,35 @@ public class SnipeUpdater : NewUpdater
     {
         this.sniper = sniper;
         newAuctions = Channel.CreateUnbounded<Element>();
-        secondPass = Channel.CreateBounded<SaveAuction>(1000);
+        userFinder = Channel.CreateBounded<SaveAuction>(1000);
         SpawnWorker(sniper);
         SpawnWorker(sniper);
         SpawnWorker(sniper);
-        SpawnWorker(sniper);
+        SpawnUserFinder();
         // get the number of cores
         coreCount = Environment.ProcessorCount;
         Console.WriteLine("Info: Using " + coreCount + " processors");
+    }
+
+    private void SpawnUserFinder()
+    {
+        var thread = new Thread(() =>
+        {
+            while (true)
+            {
+                try
+                {
+                    var next = userFinder.Reader.ReadAsync().Result;
+                    NewAuction?.Invoke(next);
+                }
+                catch (Exception e)
+                {
+                    dev.Logger.Instance.Error(e, "Testing user new auction");
+                }
+            }
+        });
+        thread.Priority = ThreadPriority.BelowNormal;
+        thread.Start();
     }
 
     private void SpawnWorker(SniperService sniper)
@@ -62,7 +83,7 @@ public class SnipeUpdater : NewUpdater
                     a.Context["ucount"] = next.offset.ToString();
                     a.Context["frec"] = (DateTime.UtcNow - a.FindTime).ToString();
                     sniper.TestNewAuction(a, true);
-                    _ = Task.Run(() => NewAuction?.Invoke(a));
+                    userFinder.Writer.TryWrite(a);
                 }
                 catch (Exception e)
                 {
@@ -93,18 +114,6 @@ public class SnipeUpdater : NewUpdater
         await Task.Delay(3);
         Console.WriteLine("Info: No more auctions");
         UpdateProcessed?.Invoke();
-        while (secondPass.Reader.Count > 0)
-        {
-            var a2 = await secondPass.Reader.ReadAsync().ConfigureAwait(false);
-            try
-            {
-                sniper.TestNewAuction(a2);
-            }
-            catch (System.Exception e)
-            {
-                dev.Logger.Instance.Error(e, "second pass");
-            }
-        }
         Console.WriteLine("Info: Done with all auctions - second pass");
         // wait for other processing to finish before updating lbin
         await Task.Delay(2000);
