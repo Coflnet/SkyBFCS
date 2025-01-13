@@ -60,6 +60,7 @@ public class SnipeUpdater : NewUpdater
                     a.Context["upage"] = next.pageId.ToString();
                     a.Context["utry"] = next.tryCount.ToString();
                     a.Context["ucount"] = next.offset.ToString();
+                    a.Context["frec"] = (DateTime.UtcNow - a.FindTime).ToString();
                     sniper.TestNewAuction(a, true);
                     _ = Task.Run(() => NewAuction?.Invoke(a));
                 }
