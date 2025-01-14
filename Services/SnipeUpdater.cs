@@ -22,6 +22,7 @@ public class SnipeUpdater : NewUpdater
     public event Action<SaveAuction> NewAuction;
     public HashSet<string> LowValueItems = new();
     public event Action UpdateProcessed;
+    private Channel<SaveAuction> postProcessing;
     private int coreCount;
     Counter lowValueSkipped = Metrics.CreateCounter("sky_bfcs_low_value_skipped", "Number of low value items skipped");
 
@@ -30,6 +31,7 @@ public class SnipeUpdater : NewUpdater
         this.sniper = sniper;
         newAuctions = Channel.CreateBounded<Element>(500);
         userFinder = Channel.CreateBounded<SaveAuction>(1000);
+        postProcessing = Channel.CreateBounded<SaveAuction>(1000);
         SpawnWorker(sniper);
         SpawnWorker(sniper);
         SpawnWorker(sniper);
@@ -49,6 +51,7 @@ public class SnipeUpdater : NewUpdater
                 {
                     var next = await userFinder.Reader.ReadAsync();
                     NewAuction?.Invoke(next);
+                    await postProcessing.Writer.WriteAsync(next);
                 }
                 catch (Exception e)
                 {
@@ -112,11 +115,18 @@ public class SnipeUpdater : NewUpdater
         await Task.Delay(3);
         Console.WriteLine("Info: No more auctions");
         UpdateProcessed?.Invoke();
-        Console.WriteLine("Info: Done with all auctions - second pass");
         // wait for other processing to finish before updating lbin
         await Task.Delay(2000);
         sniper.FinishedUpdate();
         sniper.PrintLogQueue();
+        var all = new List<SaveAuction>();
+        while (postProcessing.Reader.Count > 0)
+        {
+            all.Add(await postProcessing.Reader.ReadAsync());
+        }
+        var uuids = all.Select(a => a.Uuid).ToList();
+        Console.WriteLine("Info: uuids found - " + all.Count + " " + string.Join(", ", uuids));
+
         return result.Max(a => a.Item1);
     }
 
