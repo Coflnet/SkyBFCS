@@ -18,14 +18,14 @@ RUN mkdir Mock && mkdir -p /app/Mock && cp /build/SkySniper/Mock/ Mock/ -r \
     && mkdir -p /build/sky/bin/Debug/net8.0/Mock /build/sky/bin/release/net8.0/Mock
 RUN dotnet test && dotnet publish -c release -o /app && rm -r /app/items.json /app/Mock
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
 COPY --from=build /app .
 
 ENV ASPNETCORE_URLS=http://+:8000
 
-RUN useradd --uid $(shuf -i 2000-65000 -n 1) random && dotnet tool install --global dotnet-counters
+RUN useradd --uid $(shuf -i 2000-65000 -n 1) random
 USER random
 
 ENTRYPOINT ["dotnet", "SkyBFCS.dll", "--hostBuilder:reloadConfigOnChange=false"]

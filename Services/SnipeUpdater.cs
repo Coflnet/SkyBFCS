@@ -50,6 +50,7 @@ public class SnipeUpdater : NewUpdater
                 try
                 {
                     var next = await userFinder.Reader.ReadAsync();
+                    sniper.TestNewAuction(next);
                     NewAuction?.Invoke(next);
                     await postProcessing.Writer.WriteAsync(next);
                 }
@@ -83,7 +84,7 @@ public class SnipeUpdater : NewUpdater
                     a.Context["utry"] = next.tryCount.ToString();
                     a.Context["ucount"] = next.offset.ToString();
                     a.Context["frec"] = (DateTime.UtcNow - a.FindTime).ToString();
-                    sniper.TestNewAuction(a, true);
+                    sniper.TestNewAuction(a, true, true);
                     await userFinder.Writer.WriteAsync(a);
                 }
                 catch (Exception e)
