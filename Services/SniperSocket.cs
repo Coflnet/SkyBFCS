@@ -52,6 +52,7 @@ public class SniperSocket : MinecraftSocket
         services.AddSingleton<IMinecraftSocket>(this);
         services.AddSingleton(this);
         services.AddSingleton<IFlipReceiveTracker>(new FlipReceiveTrackerClient(this));
+        services.AddSingleton<IBlockedService>(new StaticBlockedService(this));
         services.AddSingleton<IPriceStorageService>(di => di.GetService<IFlipReceiveTracker>() as IPriceStorageService ?? throw new Exception("No IPriceStorageService"));
         this.services = services.BuildServiceProvider();
     }
