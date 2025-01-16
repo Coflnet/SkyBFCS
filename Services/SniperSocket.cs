@@ -197,6 +197,10 @@ public class SniperSocket : MinecraftSocket
         {
             sessionLifesycle.HouseKeeping();
             await sessionLifesycle.DelayHandler.Update(SessionInfo.MinecraftUuids, SessionInfo.LastCaptchaSolve);
+            await Task.Delay(12000);
+            await Task.Delay(Random.Shared.Next(0, 3000));
+            var service = GetService<IBlockedService>();
+            await service.ArchiveBlockedFlipsUntil(TopBlocked, UserId, 0);
         }, "housekeeping", 1);
         return Task.CompletedTask;
     }
