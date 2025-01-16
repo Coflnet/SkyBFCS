@@ -23,7 +23,7 @@ public class StaticBlockedService : IBlockedService
             batch.Add(item);
             if (batch.Count > 50 || topBlocked.IsEmpty)
             {
-                sniperSocket.SendToServer(Response.Create(typeof(MinecraftSocket.BlockedElement).Name, batch));
+                sniperSocket.SendToServer(Response.Create(typeof(BlockedImportCommand).Name, batch));
                 batch.Clear();
                 await Task.Delay(50);
             }
