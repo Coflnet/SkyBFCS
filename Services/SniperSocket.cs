@@ -290,7 +290,10 @@ public class SniperSocket : MinecraftSocket
             sessionLifesycle.FlipProcessor = new FlipProcesser(this, extended, sessionLifesycle.DelayHandler);
         }
         else
+        {
             dl.CurrentDelay = TimeSpan.FromMilliseconds(data.ApproxDelay);
+            sessionLifesycle.FlipProcessor.MinuteCleanup();
+        }
         Activity.Current.Log($"Set delay");
         if (sessionLifesycle.TierManager == null)
             sessionLifesycle.TierManager = new StaticTierManager(data);
