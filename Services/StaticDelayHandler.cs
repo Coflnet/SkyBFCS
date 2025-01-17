@@ -36,7 +36,7 @@ public class StaticDelayHandler : IDelayHandler
     public async Task<DateTime> AwaitDelayForFlip(FlipInstance flipInstance)
     {
         // simple calculation
-        if (flipInstance.Profit > 200_000_000 || (flipInstance.Profit > 100_000_000 || flipInstance.ProfitPercentage > 900) && Random.Shared.NextDouble() < 0.5)
+        if (flipInstance.Profit > 200_000_000 || (flipInstance.Profit > 100_000_000 || flipInstance.ProfitPercentage > 900) && Random.Shared.NextDouble() < 0.5 || userRandom.NextDouble() < 0.01)
             return DateTime.UtcNow;
         if (IsLikelyBot(flipInstance))
             return DateTime.UtcNow;
@@ -47,9 +47,7 @@ public class StaticDelayHandler : IDelayHandler
         }
         if (CurrentDelay > TimeSpan.Zero)
             await Task.Delay(CurrentDelay);
-        if (!sessionInfo.IsMacroBot && isDatacenterIp && CurrentDelay < TimeSpan.FromSeconds(0.1) && userRandom.NextDouble() < 0.8)
-            await Task.Delay(TimeSpan.FromSeconds(4) - CurrentDelay).ConfigureAwait(false);
-        else if (userRandom.NextDouble() < 0.1 * (sessionInfo.Purse == 0 ? 5 : 0.5)) // sampling dropout
+        if (userRandom.NextDouble() < 0.1 * (sessionInfo.Purse == 0 ? 5 : 0.5)) // sampling dropout
         {
             Activity.Current.Log("Dropout");
             await Task.Delay(TimeSpan.FromSeconds(6)).ConfigureAwait(false);
