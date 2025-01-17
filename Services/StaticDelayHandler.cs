@@ -47,7 +47,7 @@ public class StaticDelayHandler : IDelayHandler
         }
         if (CurrentDelay > TimeSpan.Zero)
             await Task.Delay(CurrentDelay);
-        if (userRandom.NextDouble() < 0.1 * (sessionInfo.Purse == 0 ? 5 : 0.5)) // sampling dropout
+        if (userRandom.NextDouble() < 0.1 * (sessionInfo.Purse == 0 ? 2 : 0.5)) // sampling dropout
         {
             Activity.Current.Log("Dropout");
             await Task.Delay(TimeSpan.FromSeconds(6)).ConfigureAwait(false);
