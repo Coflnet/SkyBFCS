@@ -22,7 +22,7 @@ public class StaticDelayHandler : IDelayHandler
     Random userRandom;
     int skipOn = 0;
     private static long ExemptCounter = 0;
-    private static readonly int SkipGroups = 8;
+    private static readonly int SkipGroups = 10;
 
     public StaticDelayHandler(TimeSpan currentDelay, SessionInfo sessionInfo, string clientIP)
     {
