@@ -195,12 +195,15 @@ public class SniperSocket : MinecraftSocket
             return Task.CompletedTask;
         _ = TryAsyncTimes(async () =>
         {
+            using var activity = CreateActivity("HouseKeeping", ConSpan);
             sessionLifesycle.HouseKeeping();
             await sessionLifesycle.DelayHandler.Update(SessionInfo.MinecraftUuids, SessionInfo.LastCaptchaSolve);
             await Task.Delay(12000);
             await Task.Delay(Random.Shared.Next(0, 3000));
             var service = GetService<IBlockedService>();
             await service.ArchiveBlockedFlipsUntil(TopBlocked, UserId, 0);
+            activity.Log($"Delay is {sessionLifesycle.DelayHandler.CurrentDelay}");
+            activity?.AddTag("uuid", SessionInfo.McUuid);
         }, "housekeeping", 1);
         return Task.CompletedTask;
     }
