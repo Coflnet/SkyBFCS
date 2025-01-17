@@ -202,7 +202,7 @@ public class SniperSocket : MinecraftSocket
             using var activity = CreateActivity("HouseKeeping", ConSpan);
             var service = GetService<IBlockedService>();
             await service.ArchiveBlockedFlipsUntil(TopBlocked, UserId, 0);
-            activity.Log($"Delay is {sessionLifesycle.DelayHandler.CurrentDelay}");
+            activity.Log($"Delay is {sessionLifesycle.DelayHandler.CurrentDelay.TotalSeconds}");
             activity?.AddTag("uuid", SessionInfo.McUuid);
         }, "housekeeping", 1);
         return Task.CompletedTask;

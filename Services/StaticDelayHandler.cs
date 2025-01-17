@@ -40,7 +40,7 @@ public class StaticDelayHandler : IDelayHandler
             return DateTime.UtcNow;
         if (IsLikelyBot(flipInstance))
             return DateTime.UtcNow;
-        if (IsHighCompetitionKey(flipInstance) && CurrentDelay > TimeSpan.Zero)
+        if (IsHighCompetitionKey(flipInstance) && CurrentDelay > TimeSpan.Zero && CurrentDelay < TimeSpan.FromMilliseconds(600))
         { // somebody else seems to be macroing this key, so cut the delay short
             await Task.Delay(Math.Min(CurrentDelay.Milliseconds, Random.Shared.Next(10, 40)));
             return DateTime.UtcNow;
