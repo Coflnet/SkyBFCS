@@ -54,11 +54,13 @@ public class StaticDelayHandler : IDelayHandler
         }
         if (sessionInfo.IsMacroBot && flipInstance.Profit > 1_000_000)
         {
-            var delayAmunt = flipInstance.Profit / 1_000_000 * 55;
+            var delayAmunt = Math.Min(flipInstance.Profit / 1_000_000 * 55, 1500);
+            if (CurrentDelay < TimeSpan.FromMilliseconds(150))
+                delayAmunt /= 2;
             if (CurrentDelay < TimeSpan.FromMilliseconds(100))
                 delayAmunt /= 2;
             Activity.Current.Log($"BAF {delayAmunt}");
-            await Task.Delay(TimeSpan.FromMilliseconds(flipInstance.Profit / 1_000_000 * 55)).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromMilliseconds(delayAmunt)).ConfigureAwait(false);
         }
         return DateTime.UtcNow;
     }

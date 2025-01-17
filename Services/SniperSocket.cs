@@ -425,7 +425,6 @@ public class SniperSocket : MinecraftSocket
             Finder = lp.Finder,
             TargetPrice = lp.TargetPrice
         };
-        snipe.AdditionalProps["da"] = (DateTime.UtcNow - snipe.Auction.FindTime).ToString();
         TryAsyncTimes(async () =>
         {
             if (snipe?.Auction?.Context == null || Settings == null || snipe.TargetPrice - snipe.Auction.StartingBid < Settings.MinProfit)
