@@ -49,7 +49,7 @@ public class StaticDelayHandler : IDelayHandler
             await Task.Delay(CurrentDelay);
         if (userRandom.NextDouble() < 0.1 * (sessionInfo.Purse == 0 ? 2 : 0.5)) // sampling dropout
         {
-            Activity.Current.Log("Dropout");
+            Activity.Current.Log($"Dropout, {sessionInfo.Purse}");
             await Task.Delay(TimeSpan.FromSeconds(6)).ConfigureAwait(false);
         }
         if (sessionInfo.IsMacroBot && flipInstance.Profit > 1_000_000)
