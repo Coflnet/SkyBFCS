@@ -55,6 +55,8 @@ public class StaticDelayHandler : IDelayHandler
         if (sessionInfo.IsMacroBot && flipInstance.Profit > 1_000_000)
         {
             var delayAmunt = flipInstance.Profit / 1_000_000 * 55;
+            if (CurrentDelay < TimeSpan.FromMilliseconds(100))
+                delayAmunt /= 2;
             Activity.Current.Log($"BAF {delayAmunt}");
             await Task.Delay(TimeSpan.FromMilliseconds(flipInstance.Profit / 1_000_000 * 55)).ConfigureAwait(false);
         }
