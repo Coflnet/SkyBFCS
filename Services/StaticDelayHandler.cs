@@ -42,7 +42,7 @@ public class StaticDelayHandler : IDelayHandler
             return DateTime.UtcNow;
         if (IsHighCompetitionKey(flipInstance) && CurrentDelay > TimeSpan.Zero)
         { // somebody else seems to be macroing this key, so cut the delay short
-            await Task.Delay(Math.Min(CurrentDelay.Milliseconds, 20));
+            await Task.Delay(Math.Min(CurrentDelay.Milliseconds, Random.Shared.Next(10, 40)));
             return DateTime.UtcNow;
         }
         if (CurrentDelay > TimeSpan.Zero)
