@@ -48,7 +48,6 @@ namespace Coflnet.Sky.BFCS
             services.AddJaeger(Configuration, 1);
             services.AddSingleton<SniperService>();
             services.AddSingleton<ITokenService, Sniper.Services.TokenService>();
-            services.AddSingleton<IBlockedService, StaticBlockedService>();
             services.AddSingleton<ActiveUpdater>();
             services.AddSingleton<FullUpdater>();
             services.AddSingleton<Kafka.KafkaCreator>();
