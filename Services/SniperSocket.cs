@@ -464,9 +464,12 @@ public class SniperSocket : MinecraftSocket
             return false;
         }
         if (flipUuidsSent.Contains(uuid))
+        {
+            Activity.Current.Log("Already sent us");
             return true;
+        }
         flipUuidsSent.Enqueue(uuid);
-        if (flipUuidsSent.Count > 20)
+        while (flipUuidsSent.Count > 15)
             flipUuidsSent.TryDequeue(out _);
         return false;
     }
