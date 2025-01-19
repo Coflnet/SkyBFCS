@@ -7,6 +7,7 @@ using System.Net;
 using System.Linq;
 using System.Diagnostics;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace Coflnet.Sky.BFCS.Services;
 
@@ -22,7 +23,8 @@ public class StaticDelayHandler : IDelayHandler
     Random userRandom;
     int skipOn = 0;
     private static long ExemptCounter = 0;
-    private static readonly int SkipGroups = 10;
+    private static int SkipGroups = 10;
+    private static readonly ConcurrentDictionary<string, DateTime> instances = new ConcurrentDictionary<string, DateTime>();
 
     public StaticDelayHandler(TimeSpan currentDelay, SessionInfo sessionInfo, string clientIP)
     {
@@ -89,6 +91,12 @@ public class StaticDelayHandler : IDelayHandler
     {
         Interlocked.Increment(ref ExemptCounter);
         skipOn = (int)(ExemptCounter % SkipGroups);
+        instances.AddOrUpdate(sessionInfo.McUuid, (k) => DateTime.UtcNow, (s, d) => DateTime.UtcNow);
+        foreach (var id in instances.Where(i => i.Value < DateTime.UtcNow.AddMinutes(-5)).Select(i => i.Key).ToArray())
+        {
+            instances.TryRemove(id, out _);
+        }
+        SkipGroups = Math.Max(8, instances.Count / 4);
         Console.WriteLine($"Updated delay, now skipping {skipOn} for {sessionInfo.McUuid}");
         // nothing todo, gets set by the socket
         return Task.FromResult(new DelayHandler.Summary() { VerifiedMc = true, Penalty = CurrentDelay });
