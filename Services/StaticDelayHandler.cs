@@ -40,7 +40,7 @@ public class StaticDelayHandler : IDelayHandler
         // simple calculation
         if (flipInstance.Profit > 200_000_000 || (flipInstance.Profit > 100_000_000 || flipInstance.ProfitPercentage > 900) && Random.Shared.NextDouble() < 0.5 || userRandom.NextDouble() < 0.01)
             return DateTime.UtcNow;
-        if (IsLikelyBot(flipInstance))
+        if (IsLikelyBot(flipInstance) && (CurrentDelay < TimeSpan.FromMilliseconds(900) || Random.Shared.NextDouble() < 0.3))
             return DateTime.UtcNow;
         if (IsHighCompetitionKey(flipInstance) && CurrentDelay > TimeSpan.Zero && CurrentDelay < TimeSpan.FromMilliseconds(600))
         { // somebody else seems to be macroing this key, so cut the delay short
