@@ -96,7 +96,7 @@ public class StaticDelayHandler : IDelayHandler
         {
             instances.TryRemove(id, out _);
         }
-        SkipGroups = Math.Max(8, instances.Count / 4);
+        SkipGroups = Math.Max(8, instances.Count / 3);
         Console.WriteLine($"Updated delay, now skipping {skipOn} for {sessionInfo.McUuid}");
         // nothing todo, gets set by the socket
         return Task.FromResult(new DelayHandler.Summary() { VerifiedMc = true, Penalty = CurrentDelay });
