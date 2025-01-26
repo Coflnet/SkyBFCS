@@ -560,21 +560,3 @@ public class SniperSocket : MinecraftSocket
         }
     }
 }
-
-public class ExtendedSpamController : SpamController
-{
-    private Func<SaveAuction, bool> shouldBlock;
-    public ExtendedSpamController(Func<SaveAuction, bool> shouldBlock)
-    {
-        this.shouldBlock = shouldBlock;
-    }
-
-    public override bool ShouldBeSent(FlipInstance flip)
-    {
-        if (shouldBlock(flip.Auction))
-        {
-            return false;
-        }
-        return base.ShouldBeSent(flip);
-    }
-}
