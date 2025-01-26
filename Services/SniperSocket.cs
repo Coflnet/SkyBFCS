@@ -349,13 +349,13 @@ public class SniperSocket : MinecraftSocket
         var testFlip = BlacklistCommand.GetTestFlip("test");
         try
         {
+            settings.PlayerInfo = SessionInfo;
             previousSettings?.CancelCompilation();
             Activity.Current.Log($"Copying filter");
             settings.CopyListMatchers(sessionLifesycle.FlipSettings);
             Activity.Current.Log($"Copied matchers");
             settings.MatchesSettings(testFlip);
             Activity.Current.Log($"Ran test flip");
-            settings.PlayerInfo = SessionInfo;
         }
         catch (System.Exception)
         {
