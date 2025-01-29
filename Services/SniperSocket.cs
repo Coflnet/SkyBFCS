@@ -275,12 +275,10 @@ public class SniperSocket : MinecraftSocket
             if (data.Settings.AllowedFinders.HasFlag(LowPricedAuction.FinderType.USER))
                 GetService<SnipeUpdater>().NewAuction += UserFlip;
 
-            if (data.SessionInfo.McName == "Ekwav")
-                foreach (var item in Headers)
-                {
-                    Dialog(db => db.Msg($"{item}:{Headers[item.ToString()]}"));
-                }
         }
+
+        if (data.SessionInfo.McName == "Ekwav")
+            Dialog(db => db.Msg($"sessioninfo: {JsonConvert.SerializeObject(this.Settings.PlayerInfo)}"));
         sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
         var dl = sessionLifesycle.DelayHandler as StaticDelayHandler;
         if (dl == null)
