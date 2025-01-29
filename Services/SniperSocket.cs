@@ -546,7 +546,7 @@ public class SniperSocket : MinecraftSocket
             case "report":
                 clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"Sent {JsonConvert.SerializeObject(LastSent)}")));
                 clientSocket.Send(e.Data);
-                var traceId = activity?.Context.TraceId;
+                var traceId = this.ConSpan?.Context.TraceId;
                 clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"local report id {traceId}")));
                 await Task.Delay(1000);
                 clientSocket.Send(JsonConvert.SerializeObject(Response.Create("clienterror", $"local report id {traceId}")));
