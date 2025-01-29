@@ -277,8 +277,6 @@ public class SniperSocket : MinecraftSocket
 
         }
 
-        if (data.SessionInfo.McName == "Ekwav")
-            Dialog(db => db.Msg($"sessioninfo: {JsonConvert.SerializeObject(this.Settings.PlayerInfo)}"));
         sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
         var dl = sessionLifesycle.DelayHandler as StaticDelayHandler;
         if (dl == null)
@@ -299,6 +297,8 @@ public class SniperSocket : MinecraftSocket
             (sessionLifesycle.TierManager as StaticTierManager)?.Update(data);
 
         UpdateSettings(data);
+        if (data.SessionInfo.McName == "Ekwav")
+            Dialog(db => db.Msg($"sessioninfo: {JsonConvert.SerializeObject(Settings?.PlayerInfo)}"));
         return Task.CompletedTask;
     }
 
