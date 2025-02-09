@@ -238,6 +238,7 @@ public class SniperSocket : MinecraftSocket
     private Task HandleProxySettingsSync(Response deserialized)
     {
         var data = JsonConvert.DeserializeObject<ProxyReqSyncCommand.Format>(deserialized.data);
+        var connectionId = SessionInfo.ConnectionId;
         if (data.SessionInfo.McName == "test")
         {
             SessionInfo.ConnectionId = "test";
@@ -269,12 +270,14 @@ public class SniperSocket : MinecraftSocket
             {
                 UserId = SelfUpdatingValue<string>.CreateNoUpdate(data.AccountInfo.UserId)
             };
-            SendMessage("received account info, ready to speed up flips");
             GetService<SniperService>().FoundSnipe += SendSnipe;
             GetService<BfcsBackgroundService>().FoundSnipe += SendSnipe;
             if (data.Settings.AllowedFinders.HasFlag(LowPricedAuction.FinderType.USER))
                 GetService<SnipeUpdater>().NewAuction += UserFlip;
-
+        }
+        if (connectionId != SessionInfo.ConnectionId)
+        {
+            SendMessage("received account info, ready to speed up flips");
         }
 
         sessionLifesycle.AccountInfo = SelfUpdatingValue<AccountInfo>.CreateNoUpdate(data.AccountInfo);
