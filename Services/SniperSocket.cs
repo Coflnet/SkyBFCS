@@ -300,8 +300,6 @@ public class SniperSocket : MinecraftSocket
             (sessionLifesycle.TierManager as StaticTierManager)?.Update(data);
 
         UpdateSettings(data);
-        if (data.SessionInfo.McName == "Ekwav")
-            Dialog(db => db.Msg($"sessioninfo: {JsonConvert.SerializeObject(Settings?.PlayerInfo)}"));
         return Task.CompletedTask;
     }
 
