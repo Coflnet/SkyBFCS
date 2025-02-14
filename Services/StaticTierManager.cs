@@ -43,7 +43,7 @@ public class StaticTierManager : IAccountTierManager
         return Task.FromResult(tier);
     }
 
-    public Task<(AccountTier tier, DateTime expiresAt)> GetCurrentTierWithExpire()
+    public Task<(AccountTier tier, DateTime expiresAt)> GetCurrentTierWithExpire(bool refresh = false)
     {
         return Task.FromResult((tier, expiresAt));
     }
