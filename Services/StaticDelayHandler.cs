@@ -3,7 +3,6 @@ using Coflnet.Sky.Commands.MC;
 using Coflnet.Sky.Commands.Shared;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Net;
 using System.Linq;
 using System.Diagnostics;
 using System.Threading;
