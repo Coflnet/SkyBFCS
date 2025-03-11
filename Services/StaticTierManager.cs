@@ -26,7 +26,9 @@ public class StaticTierManager : IAccountTierManager
 
     public bool IsLicense => false;
 
+    #pragma warning disable 67
     public event EventHandler<AccountTier> OnTierChange;
+    #pragma warning restore 67
 
     public Task ChangeDefaultTo(string mcUuid)
     {
